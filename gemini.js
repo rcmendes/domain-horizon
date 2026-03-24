@@ -1,18 +1,15 @@
 const { GoogleGenAI } = require('@google/genai');
+const { isDev } = require('./config');
 
 async function generateDomainNames({ name, prefixes = [], suffixes = [], prompt = '', tlds = [] }) {
   const apiKey = process.env.GEMINI_API_KEY;
   const cleanName = name.toLowerCase().replace(/\s+/g, '');
+
   if (!apiKey) {
     console.warn('GEMINI_API_KEY is not defined in the environment. Returning mock data for UI testing.');
 
-    // Honor selected TLDs; fall back to defaults if none selected
     const activeTlds = (tlds && tlds.length > 0) ? tlds : ['.com', '.io', '.net'];
-
-    // One guaranteed domain per selected TLD
     const perTldDomains = activeTlds.map(tld => `${cleanName}${tld}`);
-
-    // Creative variations using first two TLDs
     const [firstTld = '.com', secondTld = '.io'] = activeTlds;
     const creativeDomains = [
       `${cleanName}app${firstTld}`,
@@ -27,7 +24,6 @@ async function generateDomainNames({ name, prefixes = [], suffixes = [], prompt 
 
   const ai = new GoogleGenAI({ apiKey });
 
-  // Construct the prompt
   let systemInstruction = `You are a creative naming assistant that generates domain name ideas based on user input. \nYour output MUST be a valid JSON array of strings containing ONLY the domain names (e.g., ["name1.com", "name2.io"]). Do not include markdown formatting like \`\`\`json or any other text.`;
 
   let userMessage = `Please generate up to 10 unique, catchy, and relevant domain name ideas.\n`;
@@ -42,15 +38,12 @@ async function generateDomainNames({ name, prefixes = [], suffixes = [], prompt 
   if (prompt) {
     userMessage += `Product Context/Prompt: ${prompt}\n`;
   }
-
   if (prefixes && prefixes.length > 0) {
     userMessage += `Consider these prefixes: ${prefixes.join(', ')}\n`;
   }
-
   if (suffixes && suffixes.length > 0) {
     userMessage += `Consider these suffixes: ${suffixes.join(', ')}\n`;
   }
-
   if (tlds && tlds.length > 0) {
     userMessage += `\nYou MUST ONLY use these exact TLDs: ${tlds.join(', ')}. Do NOT include any other TLDs. Every domain in your response must end with one of: ${tlds.join(', ')}. Return ONLY the JSON array.`;
   } else {
@@ -58,17 +51,17 @@ async function generateDomainNames({ name, prefixes = [], suffixes = [], prompt 
   }
 
   try {
-    const isDev = process.env.ENV_FILE === '.env.dev' || process.env.NODE_ENV === 'development';
     if (isDev) {
       console.info(`[DEV] API Call (Gemini): generateContent (prompt: ${name})`);
     }
+
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: userMessage,
       config: {
         systemInstruction,
         temperature: 0.7,
-      }
+      },
     });
 
     let text = response.text;
@@ -85,6 +78,12 @@ async function generateDomainNames({ name, prefixes = [], suffixes = [], prompt 
 
     let parsedDomains = JSON.parse(text);
 
+    // Guard: must be an array of strings
+    if (!Array.isArray(parsedDomains)) {
+      throw new Error('Gemini returned unexpected non-array JSON');
+    }
+    parsedDomains = parsedDomains.filter(d => typeof d === 'string');
+
     // Filter out any domains with non-selected TLDs
     if (tlds && tlds.length > 0) {
       parsedDomains = parsedDomains.filter(domain =>
@@ -92,18 +91,16 @@ async function generateDomainNames({ name, prefixes = [], suffixes = [], prompt 
       );
     }
 
-    // Guaranteed inclusion of all selected TLDs
+    // Guarantee all selected TLDs appear at least once
     if (tlds && tlds.length > 0) {
       const missingTlds = tlds.filter(tld => !parsedDomains.some(d => d.endsWith(tld)));
       for (const tld of missingTlds) {
-        // Place it at the beginning so it's prominent, just like we asked Gemini to do.
         parsedDomains.unshift(`${cleanName}${tld}`);
       }
     }
 
     return parsedDomains;
   } catch (error) {
-    const isDev = process.env.ENV_FILE === '.env.dev' || process.env.NODE_ENV === 'development';
     if (isDev) {
       console.info(`[DEV] API Error (Gemini): ${error.message}`);
     }
@@ -112,6 +109,4 @@ async function generateDomainNames({ name, prefixes = [], suffixes = [], prompt 
   }
 }
 
-module.exports = {
-  generateDomainNames
-};
+module.exports = { generateDomainNames };

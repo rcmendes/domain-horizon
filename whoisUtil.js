@@ -1,136 +1,162 @@
 const whois = require('whois-json');
 
+const WHOIS_TIMEOUT_MS = 5000;
+
 const RESTRICTIONS = {
   // Generic restrictions
-  'edu': {
+  edu: {
     description: 'Restricted to degree-granting educational institutions.',
-    countryRestriction: 'Typically US-based accredited institutions, but exceptions exist.'
+    countryRestriction: 'Typically US-based accredited institutions, but exceptions exist.',
   },
-  'gov': {
+  gov: {
     description: 'Restricted to government entities.',
-    countryRestriction: 'United States government entities (federal, state, local, tribal).'
+    countryRestriction: 'United States government entities (federal, state, local, tribal).',
   },
-  'mil': {
+  mil: {
     description: 'Restricted to military entities.',
-    countryRestriction: 'United States military.'
+    countryRestriction: 'United States military.',
   },
-  'int': {
+  int: {
     description: 'Restricted to international organizations established by treaty.',
-    countryRestriction: 'None'
+    countryRestriction: 'None',
   },
-  'aero': {
+  aero: {
     description: 'Restricted to members of the aviation community.',
-    countryRestriction: 'None'
+    countryRestriction: 'None',
   },
-  'coop': {
+  coop: {
     description: 'Restricted to cooperative associations.',
-    countryRestriction: 'None'
+    countryRestriction: 'None',
   },
-  'museum': {
+  museum: {
     description: 'Restricted to museums.',
-    countryRestriction: 'None'
+    countryRestriction: 'None',
   },
-  'name': {
+  name: {
     description: 'Restricted to individuals for their personal names.',
-    countryRestriction: 'None'
+    countryRestriction: 'None',
   },
-  'pro': {
+  pro: {
     description: 'Restricted to credentialed professionals and related entities.',
-    countryRestriction: 'None'
+    countryRestriction: 'None',
   },
-
   // Country Code restrictions
-  'us': {
+  us: {
     description: 'Requires a nexus with the United States.',
-    countryRestriction: 'Must be a US citizen, resident, organization, or a foreign entity with a bona fide presence in the US.'
+    countryRestriction:
+      'Must be a US citizen, resident, organization, or a foreign entity with a bona fide presence in the US.',
   },
-  'eu': {
+  eu: {
     description: 'Requires connection to the European Union.',
-    countryRestriction: 'Must reside in or be established within the European Union, Iceland, Liechtenstein, or Norway.'
+    countryRestriction:
+      'Must reside in or be established within the European Union, Iceland, Liechtenstein, or Norway.',
   },
-  'ca': {
+  ca: {
     description: 'Requires Canadian presence (Canadian Presence Requirements).',
-    countryRestriction: 'Must be a Canadian citizen, permanent resident, corporation, or have a registered trademark in Canada.'
+    countryRestriction:
+      'Must be a Canadian citizen, permanent resident, corporation, or have a registered trademark in Canada.',
   },
-  'uk': {
+  uk: {
     description: 'Generally open, but some reserved rights exist.',
-    countryRestriction: '.co.uk and .org.uk are unrestricted; however, registrants must provide a valid UK address if required.'
+    countryRestriction:
+      '.co.uk and .org.uk are unrestricted; however, registrants must provide a valid UK address if required.',
   },
-  'au': {
+  au: {
     description: 'Requires Australian presence.',
-    countryRestriction: 'Must be an Australian registered company, citizen, resident, or hold a registered trade mark in Australia.'
+    countryRestriction:
+      'Must be an Australian registered company, citizen, resident, or hold a registered trade mark in Australia.',
   },
-  'fr': {
+  fr: {
     description: 'Requires European presence.',
-    countryRestriction: 'Must reside in or have a registered office in the EU, Iceland, Liechtenstein, Norway, or Switzerland.'
+    countryRestriction:
+      'Must reside in or have a registered office in the EU, Iceland, Liechtenstein, Norway, or Switzerland.',
   },
-  'it': {
+  it: {
     description: 'Requires European presence.',
-    countryRestriction: 'Must reside in or have a registered office in the EEA (European Economic Area), Vatican City, San Marino, or Switzerland.'
+    countryRestriction:
+      'Must reside in or have a registered office in the EEA (European Economic Area), Vatican City, San Marino, or Switzerland.',
   },
-  'es': {
+  es: {
     description: 'Requires ties to Spain.',
-    countryRestriction: 'Registrant must have ties to Spain or operations in Spain.'
+    countryRestriction: 'Registrant must have ties to Spain or operations in Spain.',
   },
-  'de': {
+  de: {
     description: 'Requires an administrative contact in Germany.',
-    countryRestriction: 'The registrant or the administrative contact must have a physical address in Germany.'
+    countryRestriction:
+      'The registrant or the administrative contact must have a physical address in Germany.',
   },
-  'jp': {
+  jp: {
     description: 'Requires Japanese presence.',
-    countryRestriction: 'Must be an individual or organization with a physical address in Japan.'
+    countryRestriction: 'Must be an individual or organization with a physical address in Japan.',
   },
-  'cn': {
+  cn: {
     description: 'Requires real-name verification.',
-    countryRestriction: 'Real-name verification ID required (Chinese ID or business license, or foreign equivalent).'
+    countryRestriction:
+      'Real-name verification ID required (Chinese ID or business license, or foreign equivalent).',
   },
-  'br': {
+  br: {
     description: 'Requires Brazilian document.',
-    countryRestriction: 'Must provide a valid Brazilian CPF (for individuals) or CNPJ (for companies).'
-  }
+    countryRestriction:
+      'Must provide a valid Brazilian CPF (for individuals) or CNPJ (for companies).',
+  },
+};
+
+/**
+ * Wraps whois() with a timeout so a hanging WHOIS server
+ * doesn't block the whole request indefinitely.
+ */
+function whoisWithTimeout(domainName) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(
+      () => reject(new Error(`WHOIS lookup timed out after ${WHOIS_TIMEOUT_MS}ms`)),
+      WHOIS_TIMEOUT_MS
+    );
+    whois(domainName)
+      .then((result) => {
+        clearTimeout(timer);
+        resolve(result);
+      })
+      .catch((err) => {
+        clearTimeout(timer);
+        reject(err);
+      });
+  });
+}
+
+const UNKNOWN_RESULT = {
+  owner: 'Unknown',
+  purchasedDate: 'Unknown',
+  expirationDate: 'Unknown',
+  restrictions: {
+    description: 'Could not fetch details.',
+    countryRestriction: 'Unknown',
+  },
 };
 
 async function getDomainInfo(domainName) {
   try {
-    const results = await whois(domainName);
-    
-    // Attempt to extract owner (Registrant)
+    const results = await whoisWithTimeout(domainName);
+
     let owner = results.registrantOrganization || results.registrantName || 'Unknown / Privacy Protected';
     if (owner && owner.toLowerCase().includes('privacy')) {
       owner = 'Privacy Protected';
     }
 
-    // Attempt to extract dates
     const purchasedDate = results.creationDate || 'Unknown';
-    const expirationDate = results.registryExpiryDate || results.registrarRegistrationExpirationDate || 'Unknown';
+    const expirationDate =
+      results.registryExpiryDate || results.registrarRegistrationExpirationDate || 'Unknown';
 
-    // Get Restrictions
     const tld = domainName.split('.').pop().toLowerCase();
     const restrictions = RESTRICTIONS[tld] || {
       description: 'Generally unrestricted.',
-      countryRestriction: 'None'
+      countryRestriction: 'None',
     };
 
-    return {
-      owner,
-      purchasedDate,
-      expirationDate,
-      restrictions
-    };
+    return { owner, purchasedDate, expirationDate, restrictions };
   } catch (error) {
     console.error('WHOIS lookup failed for', domainName, error.message);
-    return {
-      owner: 'Unknown',
-      purchasedDate: 'Unknown',
-      expirationDate: 'Unknown',
-      restrictions: {
-        description: 'Could not fetch details.',
-        countryRestriction: 'Unknown'
-      }
-    };
+    return UNKNOWN_RESULT;
   }
 }
 
-module.exports = {
-    getDomainInfo
-};
+module.exports = { getDomainInfo };

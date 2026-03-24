@@ -1,16 +1,18 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const path = require('path');
 const chalk = require('chalk');
+const NodeCache = require('node-cache');
 
-// Load environment variables based on ENV_FILE or default to .env
+// ── Load environment variables ──────────────────────────────────────────────
 const envPath = process.env.ENV_FILE
   ? path.resolve(__dirname, process.env.ENV_FILE)
   : path.resolve(__dirname, '.env');
 
 const envResult = require('dotenv').config({ path: envPath });
 
-// Always report environment loading status regardless of mode
 if (process.env.ENV_FILE) {
   if (envResult.error) {
     console.warn(chalk.yellow(`[WARN] Could not load env file "${path.basename(envPath)}": ${envResult.error.message}`));
@@ -27,7 +29,6 @@ if (process.env.ENV_FILE) {
   }
 }
 
-// Always log critical variable presence (never log actual values)
 const CRITICAL_VARS = ['GEMINI_API_KEY', 'GODADDY_API_KEY', 'GODADDY_API_SECRET'];
 for (const varName of CRITICAL_VARS) {
   if (process.env[varName]) {
@@ -37,19 +38,56 @@ for (const varName of CRITICAL_VARS) {
   }
 }
 
+// ── Shared config (after dotenv) ────────────────────────────────────────────
+const { isDev, PORT, ALLOWED_ORIGINS } = require('./config');
+
 const { checkDomainAvailability } = require('./godaddy');
 const { getDomainInfo } = require('./whoisUtil');
-const app = express();
-const PORT = process.env.PORT || 3001;
+const { generateDomainNames } = require('./gemini');
 
-const isDev = process.env.ENV_FILE === '.env.dev' || process.env.NODE_ENV === 'development';
+// ── In-memory cache (5-min TTL) ─────────────────────────────────────────────
+const domainCache = new NodeCache({ stdTTL: 300, checkperiod: 60 });
+
+// ── Domain validation regex ──────────────────────────────────────────────────
+const DOMAIN_REGEX = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z]{2,})+$/i;
+
+const app = express();
 
 if (isDev) {
   console.info(chalk.yellow('[DEV] Development mode active — verbose API logging enabled'));
 }
 
+// ── Security middleware ──────────────────────────────────────────────────────
+app.use(helmet({
+  // Allow serving the Vite SPA without CSP blocking inline scripts
+  contentSecurityPolicy: false,
+}));
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (curl, Postman, same-origin in prod)
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      return callback(null, true);
+    }
+    callback(new Error(`CORS: origin "${origin}" not allowed`));
+  },
+  methods: ['GET', 'POST'],
+}));
+
+app.use(express.json({ limit: '16kb' }));
+
+// ── Rate limiter ─────────────────────────────────────────────────────────────
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again in a moment.' },
+});
+
+// ── Dev request logger ───────────────────────────────────────────────────────
 if (isDev) {
-  app.use((req, res, next) => {
+  app.use((req, _res, next) => {
     if (req.path.startsWith('/api')) {
       console.info(chalk.magenta(`[DEV] API Request: ${req.method} ${req.originalUrl}`));
     }
@@ -57,35 +95,41 @@ if (isDev) {
   });
 }
 
-app.use(cors());
-app.use(express.json());
-
-// Serve static frontend later if we want to run both in one process
+// ── Static frontend ──────────────────────────────────────────────────────────
 app.use(express.static(path.join(__dirname, 'ui/dist')));
 
-const { generateDomainNames } = require('./gemini');
-
-// Unified endpoint for domain details
-app.get('/api/check', async (req, res) => {
-  let domainName = req.query.domain;
+// ── Domain check endpoint ────────────────────────────────────────────────────
+app.get('/api/check', apiLimiter, async (req, res) => {
+  let domainName = (req.query.domain || '').trim().toLowerCase();
 
   if (!domainName) {
     return res.status(400).json({ error: 'Domain name is required' });
   }
 
-  domainName = domainName.trim();
+  // append default tld if missing
   if (!domainName.includes('.')) {
     domainName += '.com';
   }
 
+  // sanitise
+  if (!DOMAIN_REGEX.test(domainName) || domainName.length > 253) {
+    return res.status(400).json({ error: 'Invalid domain name' });
+  }
+
+  // serve from cache if available
+  const cached = domainCache.get(domainName);
+  if (cached) {
+    if (isDev) console.info(chalk.cyan(`[DEV] Cache hit for: ${domainName}`));
+    return res.json(cached);
+  }
+
   try {
-    // 1. Check availability
-    const availResult = await checkDomainAvailability(domainName);
+    // Run availability + WHOIS concurrently (was sequential before)
+    const [availResult, extInfo] = await Promise.all([
+      checkDomainAvailability(domainName),
+      getDomainInfo(domainName),
+    ]);
 
-    // 2. Fetch extended info (whois + restrictions)
-    const extInfo = await getDomainInfo(domainName);
-
-    // Combine results
     const responseData = {
       domain: domainName,
       available: availResult.available,
@@ -95,8 +139,13 @@ app.get('/api/check', async (req, res) => {
       purchasedDate: extInfo.purchasedDate,
       expirationDate: extInfo.expirationDate,
       restrictions: extInfo.restrictions,
-      error: availResult.error || false
+      error: availResult.error || false,
     };
+
+    // Cache only successful (non-error) responses
+    if (!responseData.error) {
+      domainCache.set(domainName, responseData);
+    }
 
     res.json(responseData);
   } catch (error) {
@@ -105,12 +154,26 @@ app.get('/api/check', async (req, res) => {
   }
 });
 
-app.post('/api/generate', async (req, res) => {
+// ── Name-generation endpoint ─────────────────────────────────────────────────
+app.post('/api/generate', apiLimiter, async (req, res) => {
   try {
     const { name, prefixes, suffixes, prompt, tlds } = req.body;
 
-    if (!name) {
-      return res.status(400).json({ error: 'Base name is required' });
+    if (!name || typeof name !== 'string') {
+      return res.status(400).json({ error: 'Base name is required and must be a string' });
+    }
+    if (name.trim().length > 100) {
+      return res.status(400).json({ error: 'Base name must be 100 characters or fewer' });
+    }
+    if (prompt && (typeof prompt !== 'string' || prompt.length > 1000)) {
+      return res.status(400).json({ error: 'Prompt must be a string of 1000 characters or fewer' });
+    }
+    if (
+      (prefixes && !Array.isArray(prefixes)) ||
+      (suffixes && !Array.isArray(suffixes)) ||
+      (tlds && !Array.isArray(tlds))
+    ) {
+      return res.status(400).json({ error: 'prefixes, suffixes, and tlds must be arrays' });
     }
 
     const domains = await generateDomainNames({ name, prefixes, suffixes, prompt, tlds });
@@ -121,30 +184,21 @@ app.post('/api/generate', async (req, res) => {
   }
 });
 
-// Fallback for React Router
-app.use((req, res) => {
+// ── SPA fallback ─────────────────────────────────────────────────────────────
+app.use((_req, res) => {
   res.sendFile(path.join(__dirname, 'ui/dist/index.html'));
 });
 
+// ── Start server ─────────────────────────────────────────────────────────────
 const serverInstance = app.listen(PORT, () => {
   console.info(`Domain Horizon Server running on http://localhost:${PORT}`);
 
-  // Safeguard: Keep-alive interval to prevent clean exits if the event loop goes empty in some environments
-  const keepAliveInterval = setInterval(() => {
-    // Just keeping the process alive
-  }, 60000);
-
-  // Graceful shutdown handlers
   const gracefulShutdown = () => {
     console.info('\n[INFO] Graceful shutdown initiated...');
-    clearInterval(keepAliveInterval);
-
     serverInstance.close(() => {
       console.info('[INFO] Server closed. Exiting process.');
       process.exit(0);
     });
-
-    // Force exit after 5s if connections are keeping it alive
     setTimeout(() => {
       console.warn('[WARN] Could not close connections in time, forceful exit.');
       process.exit(1);
