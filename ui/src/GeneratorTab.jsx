@@ -232,9 +232,9 @@ const GeneratorTab = forwardRef(function GeneratorTab(
               maxLength={MAX_PROMPT_CHARS}
               aria-describedby="gen-prompt-char-count"
             />
-            <div className="dictate-controls">
+            <div className={`mic-split-btn ${isListening ? 'listening' : ''}`}>
               <select
-                className="dictate-lang-select"
+                className="mic-split-lang"
                 value={dictationLang}
                 onChange={(e) => setDictationLang(e.target.value)}
                 disabled={generating || isListening}
@@ -246,9 +246,10 @@ const GeneratorTab = forwardRef(function GeneratorTab(
                 <option value="fr-FR">FR</option>
                 <option value="pt-BR">PT</option>
               </select>
+              <div className="mic-split-divider"></div>
               <button
                 type="button"
-                className={`mic-btn ${isListening ? 'listening' : ''}`}
+                className="mic-split-action"
                 onClick={handleDictate}
                 disabled={generating}
                 aria-label="Dictate prompt"
