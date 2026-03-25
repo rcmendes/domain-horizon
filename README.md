@@ -1,6 +1,6 @@
 # 🌅 Nomo Lens
 
-**Nomo Lens** is a premium, all-in-one domain intelligence platform. Whether you're brainstorming the next big startup name with AI or deeply auditing an existing domain's ownership and restrictions, Nomo Lens provides a sleek, glassmorphism-inspired interface to get the job done.
+**Nomo Lens** (*Nomo* means "name" in Esperanto) is a premium, all-in-one domain intelligence platform. Whether you're brainstorming the next big startup name with AI or deeply auditing an existing domain's ownership and restrictions, Nomo Lens provides a sleek, glassmorphism-inspired interface to get the job done.
 
 Built with **Node.js**, **React**, and **Google Gemini AI**, it bridges the gap between raw WHOIS data and creative brand development.
 

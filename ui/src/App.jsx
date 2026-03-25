@@ -75,7 +75,7 @@ function AppInner() {
   const [bulkResults, setBulkResults] = useState({});
   const [bulkVerifying, setBulkVerifying] = useState(false);
   const [verifyProgress, setVerifyProgress] = useState(null);
-  const FAV_KEY = 'domainHorizon_favorites';
+  const FAV_KEY = 'nomoLens_favorites';
   const [favorites, setFavorites] = useState(() => {
     try {
       const raw = JSON.parse(localStorage.getItem(FAV_KEY) || '[]');
@@ -709,7 +709,7 @@ function AppInner() {
         <div className="app-container">
           <header>
             <h1>Nomo Lens</h1>
-            <p>Discover the unseen details of your next great idea.</p>
+            <p>Discover the unseen details of your next great idea. <em>(Nomo means "name" in Esperanto)</em></p>
           </header>
 
           <div

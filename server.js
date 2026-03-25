@@ -236,21 +236,25 @@ app.use((_req, res) => {
 });
 
 // ── Start server ─────────────────────────────────────────────────────────────
-const serverInstance = app.listen(PORT, () => {
-  console.info(`Nomo Lens Server running on http://localhost:${PORT}`);
+if (process.env.NODE_ENV !== 'production' || process.env.VERCEL !== '1') {
+  const serverInstance = app.listen(PORT, () => {
+    console.info(`Nomo Lens Server running on http://localhost:${PORT}`);
 
-  const gracefulShutdown = () => {
-    console.info('\n[INFO] Graceful shutdown initiated...');
-    serverInstance.close(() => {
-      console.info('[INFO] Server closed. Exiting process.');
-      process.exit(0);
-    });
-    setTimeout(() => {
-      console.warn('[WARN] Could not close connections in time, forceful exit.');
-      process.exit(1);
-    }, 5000);
-  };
+    const gracefulShutdown = () => {
+      console.info('\n[INFO] Graceful shutdown initiated...');
+      serverInstance.close(() => {
+        console.info('[INFO] Server closed. Exiting process.');
+        process.exit(0);
+      });
+      setTimeout(() => {
+        console.warn('[WARN] Could not close connections in time, forceful exit.');
+        process.exit(1);
+      }, 5000);
+    };
 
-  process.on('SIGINT', gracefulShutdown);
-  process.on('SIGTERM', gracefulShutdown);
-});
+    process.on('SIGINT', gracefulShutdown);
+    process.on('SIGTERM', gracefulShutdown);
+  });
+}
+
+module.exports = app;
