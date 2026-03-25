@@ -695,7 +695,10 @@ function AppInner() {
         onClose={() => setPaletteOpen(false)}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        focusSearchInput={() => searchInputRef.current?.focus()}
+        focusGenPrompt={() => genPromptRef.current?.focus()}
         onVerifySelected={handleBulkVerify}
+        canVerifySelected={selectedDomains.size > 0 && (!bulkVerifying && hasSelectionChanged)}
         onShowOnlyAvailable={() => verificationSectionRef.current?.showOnlyAvailable?.()}
         onResetFilters={() => verificationSectionRef.current?.resetFilters?.()}
         onCopyAvailable={copyAvailableDomains}
