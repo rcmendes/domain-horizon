@@ -237,7 +237,7 @@ app.use((_req, res) => {
 
 // ── Start server ─────────────────────────────────────────────────────────────
 const serverInstance = app.listen(PORT, () => {
-  console.info(`Domain Horizon Server running on http://localhost:${PORT}`);
+  console.info(`Nomo Lens Server running on http://localhost:${PORT}`);
 
   const gracefulShutdown = () => {
     console.info('\n[INFO] Graceful shutdown initiated...');

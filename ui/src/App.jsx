@@ -85,7 +85,7 @@ function AppInner() {
     }
   });
 
-  const MON_KEY = 'domainHorizon_monitored';
+  const MON_KEY = 'nomoLens_monitored';
   const [monitored, setMonitored] = useState(() => {
     try {
       const raw = JSON.parse(localStorage.getItem(MON_KEY) || '[]');
@@ -174,7 +174,7 @@ function AppInner() {
     [monitored]
   );
 
-  const CACHE_KEY = 'domainHorizon_cache';
+  const CACHE_KEY = 'nomoLens_cache';
 
   const getCachedResult = useCallback((domain) => {
     try {
@@ -708,7 +708,7 @@ function AppInner() {
       <div className="layout-wrapper">
         <div className="app-container">
           <header>
-            <h1>Domain Horizon</h1>
+            <h1>Nomo Lens</h1>
             <p>Discover the unseen details of your next great idea.</p>
           </header>
 

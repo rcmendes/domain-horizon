@@ -6,7 +6,7 @@ const chalk = require('chalk');
 const { checkDomainsBulk } = require('./godaddy');
 
 program
-  .name('domain-horizon')
+  .name('nomolens')
   .description('CLI to check domain name availability via GoDaddy API')
   .version('1.0.0');
 

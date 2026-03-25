@@ -30,7 +30,7 @@ function exportJson(favorites) {
   const blob = new Blob([JSON.stringify(favorites, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'domain-horizon-favorites.json';
+  a.download = 'nomolens-favorites.json';
   a.click();
   URL.revokeObjectURL(a.href);
 }
@@ -48,7 +48,7 @@ function exportCsv(favorites) {
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'domain-horizon-favorites.csv';
+  a.download = 'nomolens-favorites.csv';
   a.click();
   URL.revokeObjectURL(a.href);
 }

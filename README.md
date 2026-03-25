@@ -1,6 +1,6 @@
-# 🌅 Domain Horizon
+# 🌅 Nomo Lens
 
-**Domain Horizon** is a premium, all-in-one domain intelligence platform. Whether you're brainstorming the next big startup name with AI or deeply auditing an existing domain's ownership and restrictions, Domain Horizon provides a sleek, glassmorphism-inspired interface to get the job done.
+**Nomo Lens** is a premium, all-in-one domain intelligence platform. Whether you're brainstorming the next big startup name with AI or deeply auditing an existing domain's ownership and restrictions, Nomo Lens provides a sleek, glassmorphism-inspired interface to get the job done.
 
 Built with **Node.js**, **React**, and **Google Gemini AI**, it bridges the gap between raw WHOIS data and creative brand development.
 
@@ -54,7 +54,7 @@ Clone the repository and install dependencies for both the server and the UI:
 
 ```bash
 git clone https://github.com/rcmendes/domain-checker.git
-cd domain-horizon
+cd nomolens
 
 # Install Backend Dependencies
 npm install
@@ -102,7 +102,7 @@ npm run prod
 ## 📂 Project Structure
 
 ```text
-domain-horizon/
+nomolens/
 ├── ui/                 # React/Vite Frontend
 │   └── src/            # Components (App, Generator, Results)
 ├── server.js           # Main Express server & API routes
