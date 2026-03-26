@@ -529,7 +529,7 @@ header p {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem;
+  padding: 1.5rem;
   opacity: 0;
   animation: fadeIn 0.3s forwards;
 }
@@ -633,7 +633,7 @@ header p {
 }
 
 .lead-muted-center {
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.75rem;
   color: var(--text-muted);
   text-align: center;
 }
@@ -660,14 +660,14 @@ header p {
 .generator-form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-  margin-top: 1.5rem;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.3rem;
 }
 
 .form-group label {
@@ -823,7 +823,7 @@ header p {
 .form-group input,
 .form-group textarea {
   width: 100%;
-  padding: 1rem 1.25rem;
+  padding: 0.6rem 1rem;
   font-size: 1rem;
   font-family: var(--font-family);
   color: var(--text-main);
@@ -937,119 +937,15 @@ textarea#gen-prompt {
 .generate-btn {
   position: static;
   width: 100%;
-  padding: 1.25rem;
-  margin-top: 1rem;
+  padding: 0.85rem;
+  margin-top: 0.5rem;
   border-radius: 12px;
 }
 
 .generated-results {
-  margin-top: 3rem;
-  border-top: 1px solid var(--glass-border);
-  padding-top: 2rem;
-}
-
-.tree-container {
-  display: flex;
-  flex-direction: column;
   margin-top: 1.5rem;
-  padding-left: 0.5rem;
-}
-
-.tree-root {
-  display: inline-block;
-  background: var(--primary);
-  color: white;
-  padding: 0.6rem 1.25rem;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
-  align-self: flex-start;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-}
-
-.tree-branches {
-  display: flex;
-  flex-direction: column;
-  margin-left: 1.5rem;
-  position: relative;
-}
-
-.tree-branches::before {
-  content: '';
-  position: absolute;
-  top: -0.5rem;
-  bottom: 1.5rem;
-  left: 0;
-  width: 2px;
-  background: var(--glass-border);
-}
-
-.tree-branch {
-  display: flex;
-  align-items: flex-start;
-  position: relative;
-  margin: 0.5rem 0;
-}
-
-.tree-line {
-  width: 1.5rem;
-  height: 2px;
-  background: var(--glass-border);
-  margin-top: 1.05rem; /* vertically centre against the group header ~36px tall */
-  flex-shrink: 0;
-}
-
-.tree-card {
-  padding: 0.5rem 0.8rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 180px;
-  background: var(--card-bg);
-  border: 1px solid var(--glass-border);
-  position: relative;
-}
-
-.tree-card:hover {
-  background: var(--card-hover);
-  transform: translateX(4px);
-}
-
-.tree-card:hover::after {
-  content: 'click to toggle';
-  position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 0.65rem;
-  color: var(--text-muted);
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-.tree-card.selected {
-  border-color: var(--primary);
-  background: rgba(79, 70, 229, 0.15);
-}
-
-.tree-checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin: 0;
-  cursor: pointer;
-}
-.tree-checkbox-label input[type="checkbox"] {
-  width: 1rem;
-  height: 1rem;
-  cursor: pointer;
-  accent-color: var(--primary);
-}
-.tree-domain-text {
-  font-weight: 500;
-  font-size: 0.95rem;
-  color: var(--text-main);
+  border-top: 1px solid var(--glass-border);
+  padding-top: 1.25rem;
 }
 
 /* Bulk verify action bar */
@@ -1298,7 +1194,7 @@ textarea#gen-prompt {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.35rem;
 }
 
 .tld-chip {
@@ -1381,117 +1277,141 @@ textarea#gen-prompt {
   cursor: not-allowed;
 }
 
-/* ── Hierarchical Tree Groups ───────────────────────────────────────────────── */
+/* ── Domain Rows + TLD Pills ───────────────────────────────────────────────── */
 
-/* Each branch is a group (original / suggestion) */
-.tree-group {
+.domain-rows {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  gap: 0.5rem;
+  margin-top: 1rem;
 }
 
-/* Clickable group header */
-.tree-group-header {
+.domain-row {
   display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  background: var(--tree-bg);
-  border: 1px solid var(--tree-border);
-  border-radius: 8px;
-  padding: 0.55rem 0.9rem;
-  cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease;
-  user-select: none;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.35rem 0;
 }
 
-.tree-group-header:hover {
-  background: var(--tree-hover);
-  border-color: var(--primary);
-}
-
-/* Selection state indicator dot */
-.tree-group-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+.domain-row-label {
   flex-shrink: 0;
-  transition: background 0.2s;
-}
-.tree-group-dot.all  { background: var(--primary); }
-.tree-group-dot.some { background: color-mix(in oklab, var(--primary) 55%, white); }
-.tree-group-dot.none { background: var(--glass-border); }
-
-.tree-group-label {
+  width: 160px;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  font-family: var(--font-mono, monospace);
   color: var(--text-main);
-  flex: 1;
-}
-
-.tree-group-count {
-  font-size: 0.75rem;
-  color: color-mix(in oklab, var(--text-muted) 55%, var(--text-main));
-}
-
-/* Leaf domain cards nested inside a group */
-.tree-leaves {
-  display: flex;
-  flex-direction: column;
-  margin-left: 1.5rem;
-  margin-top: 0.25rem;
-  gap: 0.3rem;
-  position: relative;
-}
-
-.tree-leaves::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0.75rem;
-  left: 0;
-  width: 2px;
-  background: color-mix(in oklab, var(--tree-border) 85%, transparent);
-}
-
-.tree-leaf-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.4rem 0.75rem;
-  border-radius: 8px;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0.3rem 0;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
-  background: var(--tree-bg);
+  opacity: 0.75;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.domain-row-label:hover {
+  opacity: 1;
+}
+
+.domain-row-label--all {
+  opacity: 1;
+  color: var(--primary);
+}
+
+.tld-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+/* Base pill */
+.tld-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.65rem;
+  border-radius: 999px;
   border: 1px solid var(--tree-border);
-  margin-left: 1.5rem;
-  position: relative;
+  background: var(--tree-bg);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-main);
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  white-space: nowrap;
 }
 
-.tree-leaf-card::before {
-  content: '';
-  position: absolute;
-  left: -1.5rem;
-  top: 50%;
-  width: 1.5rem;
-  height: 2px;
-  background: color-mix(in oklab, var(--tree-border) 85%, transparent);
-}
-
-.tree-leaf-card:hover {
+.tld-pill:hover {
   background: var(--tree-hover);
-  transform: translateX(3px);
+  transform: translateY(-1px);
 }
 
-.tree-leaf-card.selected {
+.tld-pill:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Selected */
+.tld-pill--selected {
   border-color: var(--primary);
   background: color-mix(in oklab, var(--primary) 14%, var(--tree-bg));
 }
 
-/* Badge shown inline in the leaf after verification */
-.leaf-badge-wrap {
-  margin-left: auto;
-  padding-left: 0.6rem;
-  flex-shrink: 0;
+/* Status: Available */
+.tld-pill--available {
+  border-color: var(--color-available, #22c55e);
+  background: color-mix(in oklab, #22c55e 10%, var(--tree-bg));
+}
+
+.tld-pill--selected.tld-pill--available {
+  background: color-mix(in oklab, #22c55e 22%, var(--tree-bg));
+}
+
+/* Status: Taken */
+.tld-pill--taken {
+  border-color: color-mix(in oklab, var(--color-taken, #f87171) 60%, transparent);
+  background: color-mix(in oklab, #f87171 7%, var(--tree-bg));
+}
+
+/* Status: Checking */
+.tld-pill--checking {
+  animation: pill-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pill-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Status: Error */
+.tld-pill--error {
+  border-color: var(--color-warning);
+}
+
+.tld-pill-domain {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+}
+
+.tld-pill-status {
+  font-size: 0.7rem;
+  font-weight: 600;
+  opacity: 0.85;
+  padding-left: 0.1rem;
+}
+
+/* "Latest generation" muted label */
+.results-run-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 0 0 0.5rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 
