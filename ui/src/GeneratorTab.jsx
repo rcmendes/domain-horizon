@@ -26,77 +26,6 @@ function SeedRootIcon() {
   );
 }
 
-function DomainLeaf({ domain, selected, onToggle, disabled, bulkResults }) {
-  const result = bulkResults[domain];
-  let statusBadge = null;
-  if (result) {
-    if (result.loading) statusBadge = <span className="compact-badge checking">Checking…</span>;
-    else if (result.error) statusBadge = <span className="compact-badge error">Error</span>;
-    else if (result.data?.available) statusBadge = <span className="compact-badge available">✓ Free</span>;
-    else statusBadge = <span className="compact-badge taken">Taken</span>;
-  }
-
-  return (
-    <button
-      type="button"
-      className={`tree-leaf-card glass ${selected ? 'selected' : ''}`}
-      onClick={(e) => {
-        if (e.target.closest('.tree-checkbox-label')) return;
-        onToggle(domain);
-      }}
-      disabled={disabled}
-      aria-pressed={selected}
-      aria-label={`Toggle ${domain}`}
-    >
-      <label className="tree-checkbox-label">
-        <input
-          type="checkbox"
-          checked={selected}
-          onChange={() => onToggle(domain)}
-          disabled={disabled}
-          aria-label={`Select ${domain}`}
-        />
-        <span className="tree-domain-text">{domain}</span>
-      </label>
-      {statusBadge && <div className="leaf-badge-wrap">{statusBadge}</div>}
-    </button>
-  );
-}
-
-function DomainGroup({ label, domains, selectedDomains, onToggle, bulkVerifying, bulkResults, onToggleGroup }) {
-  const allSelected = domains.every((d) => selectedDomains.has(d));
-  const someSelected = domains.some((d) => selectedDomains.has(d));
-
-  return (
-    <div className="tree-group">
-      <button
-        type="button"
-        className="tree-group-header"
-        onClick={() => onToggleGroup(domains, !allSelected)}
-        disabled={bulkVerifying}
-        aria-label={`${allSelected ? 'Deselect' : 'Select'} all variants for ${label}`}
-      >
-        <span className={`tree-group-dot ${allSelected ? 'all' : someSelected ? 'some' : 'none'}`} />
-        <span className="tree-group-label">{label}</span>
-        <span className="tree-group-count">
-          {domains.length} variant{domains.length !== 1 ? 's' : ''}
-        </span>
-      </button>
-      <div className="tree-leaves">
-        {domains.map((d) => (
-          <DomainLeaf
-            key={d}
-            domain={d}
-            selected={selectedDomains.has(d)}
-            onToggle={onToggle}
-            disabled={bulkVerifying}
-            bulkResults={bulkResults}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
 
 const GeneratorTab = forwardRef(function GeneratorTab(
   {
@@ -225,7 +154,7 @@ const GeneratorTab = forwardRef(function GeneratorTab(
                 value={genPrompt}
                 onChange={(e) => setGenPrompt(e.target.value)}
                 disabled={generating}
-                rows="3"
+                rows="2"
                 required
                 maxLength={MAX_PROMPT_CHARS}
                 aria-describedby="gen-prompt-char-count"
@@ -449,27 +378,8 @@ const GeneratorTab = forwardRef(function GeneratorTab(
             </span>
           </h3>
 
-          <div className="tree-container">
-            <div className="tree-root">
-              <span className="tree-root-name">Your latest run</span>
-            </div>
-
-            <div className="tree-branches">
-              {generationResult.suggestions.map((suggestion, idx) => (
-                <div key={`${suggestion.base}-${idx}`} className="tree-branch">
-                  <div className="tree-line" />
-                  <DomainGroup
-                    label={`${suggestion.base}`}
-                    domains={suggestion.domains}
-                    selectedDomains={selectedDomains}
-                    onToggle={toggleDomainSelection}
-                    bulkVerifying={bulkVerifying}
-                    bulkResults={bulkResults}
-                    onToggleGroup={handleToggleGroup}
-                  />
-                </div>
-              ))}
-            </div>
+          <div className="domain-rows">
+            {/* TODO: DomainRow per suggestion */}
           </div>
 
           {selectedDomains.size > 0 && (
