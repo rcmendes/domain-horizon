@@ -26,6 +26,81 @@ function SeedRootIcon() {
   );
 }
 
+function TldPill({ domain, selected, onToggle, disabled, bulkResults }) {
+  const result = bulkResults[domain];
+
+  let statusLabel = null;
+  let modifier = '';
+
+  if (result) {
+    if (result.loading) {
+      statusLabel = 'Checking…';
+      modifier = 'checking';
+    } else if (result.error) {
+      statusLabel = 'Error';
+      modifier = 'error';
+    } else if (result.data?.available) {
+      statusLabel = '✓ Free';
+      modifier = 'available';
+    } else {
+      statusLabel = 'Taken';
+      modifier = 'taken';
+    }
+  }
+
+  const classNames = [
+    'tld-pill',
+    modifier && `tld-pill--${modifier}`,
+    selected && 'tld-pill--selected',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  return (
+    <button
+      type="button"
+      className={classNames}
+      onClick={() => onToggle(domain)}
+      disabled={disabled}
+      aria-pressed={selected}
+      aria-label={`${selected ? 'Deselect' : 'Select'} ${domain}${statusLabel ? ` — ${statusLabel}` : ''}`}
+    >
+      <span className="tld-pill-domain">{domain}</span>
+      {statusLabel && <span className="tld-pill-status">{statusLabel}</span>}
+    </button>
+  );
+}
+
+function DomainRow({ base, domains, selectedDomains, onToggle, bulkVerifying, bulkResults, onToggleGroup }) {
+  const allSelected = domains.every((d) => selectedDomains.has(d));
+
+  return (
+    <div className="domain-row">
+      <button
+        type="button"
+        className={`domain-row-label ${allSelected ? 'domain-row-label--all' : ''}`}
+        onClick={() => onToggleGroup(domains, !allSelected)}
+        disabled={bulkVerifying}
+        aria-label={`${allSelected ? 'Deselect' : 'Select'} all variants for ${base}`}
+        title={`Click to ${allSelected ? 'deselect' : 'select'} all ${base} variants`}
+      >
+        {base}
+      </button>
+      <div className="tld-pills">
+        {domains.map((d) => (
+          <TldPill
+            key={d}
+            domain={d}
+            selected={selectedDomains.has(d)}
+            onToggle={onToggle}
+            disabled={bulkVerifying}
+            bulkResults={bulkResults}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 const GeneratorTab = forwardRef(function GeneratorTab(
   {
@@ -377,9 +452,21 @@ const GeneratorTab = forwardRef(function GeneratorTab(
               {generationResult.suggestions.reduce((a, s) => a + s.domains.length, 0)} domains
             </span>
           </h3>
+          <p className="results-run-label">Latest generation</p>
 
           <div className="domain-rows">
-            {/* TODO: DomainRow per suggestion */}
+            {generationResult.suggestions.map((suggestion, idx) => (
+              <DomainRow
+                key={`${suggestion.base}-${idx}`}
+                base={suggestion.base}
+                domains={suggestion.domains}
+                selectedDomains={selectedDomains}
+                onToggle={toggleDomainSelection}
+                bulkVerifying={bulkVerifying}
+                bulkResults={bulkResults}
+                onToggleGroup={handleToggleGroup}
+              />
+            ))}
           </div>
 
           {selectedDomains.size > 0 && (
