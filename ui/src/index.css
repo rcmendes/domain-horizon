@@ -1004,10 +1004,11 @@ textarea#gen-prompt {
 .compact-result-card {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  padding: 1.1rem 1.25rem;
+  gap: 0;
+  padding: 0;
   transition: all 0.3s ease;
   border: 1px solid var(--glass-border);
+  overflow: hidden;
 }
 
 .compact-result-card.status-expiring-soon {
@@ -1044,49 +1045,70 @@ textarea#gen-prompt {
 }
 
 .compact-result-card.status-available {
-  background: var(--success-bg);
   border-color: var(--success-border);
 }
-[data-theme="light"] .compact-result-card.status-available {
-  background: var(--success-bg);
-}
 
-.compact-result-card.status-taken {
-  background: transparent;
-  border-color: var(--glass-border);
-}
-[data-theme="light"] .compact-result-card.status-taken {
-  background: transparent;
+.compact-result-card.status-taken,
+.compact-result-card.status-expiring-soon {
+  border-color: rgba(239, 68, 68, 0.25);
 }
 
 .compact-result-card.status-unavailable {
-  background: transparent;
   border-color: var(--glass-border);
 }
-[data-theme="light"] .compact-result-card.status-unavailable {
-  background: transparent;
-}
 
-.compact-header-row {
+/* Highlighted header band */
+.compact-card-header {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  flex-wrap: nowrap;
+  padding: 0.75rem 1.1rem;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--glass-border);
+  min-width: 0;
 }
 
-.compact-header-spacer {
-  flex: 1;
+[data-theme="light"] .compact-card-header {
+  background: rgba(0, 0, 0, 0.03);
 }
 
+.compact-result-card.status-available .compact-card-header {
+  background: rgba(16, 185, 129, 0.1);
+  border-bottom-color: var(--success-border);
+}
 
+.compact-result-card.status-taken .compact-card-header,
+.compact-result-card.status-expiring-soon .compact-card-header {
+  background: rgba(239, 68, 68, 0.07);
+  border-bottom-color: rgba(239, 68, 68, 0.2);
+}
+
+/* Card body padding */
+.compact-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.9rem 1.1rem;
+}
+
+/* Status row: badge + timestamp */
+.compact-status-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
 
 .compact-domain {
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   color: var(--text-main);
   min-width: 0;
-  overflow-wrap: anywhere;
-  word-break: break-all; /* fallback for older Safari */
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
 }
 
 .compact-badges {
@@ -1121,6 +1143,8 @@ textarea#gen-prompt {
   border-radius: 10px;
   border: 1px solid var(--glass-border);
   width: 100%;
+  min-height: 5.5rem;
+  align-content: start;
 }
 
 /* Owner row spans both columns */

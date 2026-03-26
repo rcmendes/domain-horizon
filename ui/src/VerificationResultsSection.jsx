@@ -86,71 +86,86 @@ function VerificationCard({
   return (
     <div className={`compact-result-card glass status-${status}`}>
 
-      {/* Header: domain + badge + action buttons */}
-      <div className="compact-header-row">
-        <span className="compact-domain">{domain}</span>
-        <div className="compact-badges">
-          {status === 'loading' && <span className="compact-badge checking">Checking…</span>}
-          {status === 'error' && <span className="compact-badge error">Error</span>}
-          {status === 'available' && <span className="compact-badge available">Available</span>}
-          {status === 'taken' && <span className="compact-badge taken">Taken</span>}
-          {status === 'unavailable' && <span className="compact-badge unavailable">Unavailable</span>}
-          {status === 'expiring-soon' && <span className="compact-badge taken">Taken</span>}
-        </div>
+      {/* Highlighted header band: domain name + action buttons */}
+      <div className="compact-card-header">
+        <span className="compact-domain" title={domain}>{domain}</span>
         {!result.loading && <div className="compact-header-actions">{actionButtons}</div>}
       </div>
 
-      {/* Timestamp + price for available domains */}
-      {(!result.loading) && (checkedLabel || hasPrice) && (
-        <div className="compact-card-meta">
-          {checkedLabel && <p className="compact-checked-at">Checked {checkedLabel}</p>}
-          {hasPrice && (
-            <span className="compact-price-inline">
-              {result.data.currency === 'USD' ? '$' : result.data.currency + ' '}
-              {result.data.price}
-            </span>
+      {/* Card body */}
+      <div className="compact-card-body">
+
+        {/* Status badge + timestamp */}
+        <div className="compact-status-row">
+          <div className="compact-badges">
+            {status === 'loading' && <span className="compact-badge checking">Checking…</span>}
+            {status === 'error' && <span className="compact-badge error">Error</span>}
+            {status === 'available' && <span className="compact-badge available">Available</span>}
+            {status === 'taken' && <span className="compact-badge taken">Taken</span>}
+            {status === 'unavailable' && <span className="compact-badge unavailable">Unavailable</span>}
+            {status === 'expiring-soon' && <span className="compact-badge taken">Taken</span>}
+          </div>
+          {!result.loading && checkedLabel && (
+            <p className="compact-checked-at">Checked {checkedLabel}</p>
           )}
         </div>
-      )}
 
-      {/* WHOIS info grid — owner full-width, dates side-by-side */}
-      {!result.loading && !result.error && result.data && !result.data.available && (
-        <div className="compact-info-grid">
-          <div className="compact-info-col compact-info-col--owner">
-            <span className="compact-label">Owner</span>
-            <span className="compact-value compact-value--wrap" title={result.data.owner || 'Unknown'}>
-              {result.data.owner || 'Unknown'}
-            </span>
-          </div>
-          <div className="compact-info-col compact-info-col--purchased">
-            <span className="compact-label">Purchased</span>
-            <span className="compact-value">
-              {result.data.purchasedDate?.split('T')[0] || '-'}
-            </span>
-          </div>
-          <div className="compact-info-col compact-info-col--expires">
-            <span className="compact-label">Expires</span>
-            <span className="compact-value">
-              {result.data.expirationDate?.split('T')[0] || '-'}
-            </span>
-          </div>
-        </div>
-      )}
+        {/* Unified info box: price for available, WHOIS for taken/unavailable */}
+        {!result.loading && !result.error && result.data && (
+          result.data.available ? (
+            <div className="compact-info-grid">
+              <div className="compact-info-col compact-info-col--owner">
+                <span className="compact-label">Price</span>
+                {hasPrice ? (
+                  <span className="compact-price-inline">
+                    {result.data.currency === 'USD' ? '$' : result.data.currency + ' '}
+                    {result.data.price}
+                  </span>
+                ) : (
+                  <span className="compact-value">—</span>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="compact-info-grid">
+              <div className="compact-info-col compact-info-col--owner">
+                <span className="compact-label">Owner</span>
+                <span className="compact-value compact-value--wrap" title={result.data.owner || 'Unknown'}>
+                  {result.data.owner || 'Unknown'}
+                </span>
+              </div>
+              <div className="compact-info-col compact-info-col--purchased">
+                <span className="compact-label">Purchased</span>
+                <span className="compact-value">
+                  {result.data.purchasedDate?.split('T')[0] || '-'}
+                </span>
+              </div>
+              <div className="compact-info-col compact-info-col--expires">
+                <span className="compact-label">Expires</span>
+                <span className="compact-value">
+                  {result.data.expirationDate?.split('T')[0] || '-'}
+                </span>
+              </div>
+            </div>
+          )
+        )}
 
-      {/* Expiry warning strip */}
-      {status === 'expiring-soon' && (
-        <div className="compact-expiry-warning">
-          ⚠ Expiring soon{daysUntilExpiry !== null ? ` — ${daysUntilExpiry} day${daysUntilExpiry !== 1 ? 's' : ''} remaining` : ''}
-        </div>
-      )}
+        {/* Expiry warning strip */}
+        {status === 'expiring-soon' && (
+          <div className="compact-expiry-warning">
+            ⚠ Expiring soon{daysUntilExpiry !== null ? ` — ${daysUntilExpiry} day${daysUntilExpiry !== 1 ? 's' : ''} remaining` : ''}
+          </div>
+        )}
 
-      {/* Restrictions */}
-      {!result.loading && !result.error && result.data?.restrictions && (
-        <div className="compact-restrictions" title={result.data.restrictions.description}>
-          <span className="compact-label">Restrictions:</span>{' '}
-          <span className="compact-restrictions-value">{result.data.restrictions.countryRestriction}</span>
-        </div>
-      )}
+        {/* Restrictions */}
+        {!result.loading && !result.error && result.data?.restrictions && (
+          <div className="compact-restrictions" title={result.data.restrictions.description}>
+            <span className="compact-label">Restrictions:</span>{' '}
+            <span className="compact-restrictions-value">{result.data.restrictions.countryRestriction}</span>
+          </div>
+        )}
+
+      </div>
 
     </div>
   );
