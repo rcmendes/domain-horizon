@@ -186,7 +186,6 @@ const GeneratorTab = forwardRef(function GeneratorTab(
   ref
 ) {
   const hasResult = generationResult !== null;
-  const [advancedOpen, setAdvancedOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [dictationLang, setDictationLang] = useState('en-US');
 
@@ -241,24 +240,28 @@ const GeneratorTab = forwardRef(function GeneratorTab(
   const showVerifyHint = selectedDomains.size > 0 && verifyDisabled && !bulkVerifying;
 
   return (
-    <section className={`mode-section mode-section--static${hasResult ? ' mode-section--wide' : ''} glass`}>
-      <div style={{ maxWidth: '700px', margin: '0 auto' }}>
-        <h2 className="sr-only">Generate names with AI</h2>
-        <p className="lead-muted-center">
-          <SeedRootIcon />
-          Describe what you are building in plain language—we suggest memorable name roots you can pair with the
-          extensions you select in the bar above.
-        </p>
+    <section className=”mode-section mode-section--static mode-section--wide glass”>
+      <h2 className=”sr-only”>Generate names with AI</h2>
+      <p className=”lead-muted-center”>
+        <SeedRootIcon />
+        Describe what you are building in plain language—we suggest memorable name roots you can pair with the
+        extensions you select in the bar above.
+      </p>
 
-        <form className="generator-form" onSubmit={onGenerate}>
-          <div className="form-group">
+      <form className=”generator-form gen-form-grid” onSubmit={onGenerate}>
+
+        {/* LEFT COLUMN */}
+        <div className=”gen-form-left”>
+
+          {/* Prompt textarea field group */}
+          <div className=”form-group”>
             <FieldInfo
               label={
-                <label htmlFor="gen-prompt">
-                  What are you building? <span className="required">*</span>
+                <label htmlFor=”gen-prompt”>
+                  What are you building? <span className=”required”>*</span>
                 </label>
               }
-              ariaLabel="More about the product description"
+              ariaLabel=”More about the product description”
             >
               <p>
                 A short pitch works best: who it is for, the problem you solve, and the vibe you want. We send this
@@ -269,62 +272,67 @@ const GeneratorTab = forwardRef(function GeneratorTab(
                 profile bar—they apply when you verify availability.
               </p>
             </FieldInfo>
-            <div className="prompt-textarea-wrapper">
+            <div className=”prompt-textarea-wrapper”>
               <textarea
                 ref={ref}
-                id="gen-prompt"
-                placeholder="e.g. A calm budgeting app for couples who want shared goals without the spreadsheet…"
+                id=”gen-prompt”
+                placeholder=”e.g. A calm budgeting app for couples who want shared goals without the spreadsheet…”
                 value={genPrompt}
                 onChange={(e) => setGenPrompt(e.target.value)}
                 disabled={generating}
-                rows="2"
+                rows=”4”
                 required
                 maxLength={MAX_PROMPT_CHARS}
-                aria-describedby="gen-prompt-char-count"
+                aria-describedby=”gen-prompt-char-count”
               />
+            </div>
+            {/* prompt-footer row below the textarea */}
+            <div className=”prompt-footer”>
+              <p
+                id=”gen-prompt-char-count”
+                className={`prompt-char-count${genPrompt.length >= MAX_PROMPT_CHARS ? ' prompt-char-count--max' : ''}`}
+              >
+                {genPrompt.length}/{MAX_PROMPT_CHARS} characters
+              </p>
+              {/* Mic button moved here from inside the textarea wrapper */}
               <div className={`mic-split-btn ${isListening ? 'listening' : ''}`}>
                 <select
-                  className="mic-split-lang"
+                  className=”mic-split-lang”
                   value={dictationLang}
                   onChange={(e) => setDictationLang(e.target.value)}
                   disabled={generating || isListening}
-                  title="Select dictation language"
-                  aria-label="Select dictation language"
+                  title=”Select dictation language”
+                  aria-label=”Select dictation language”
                 >
-                  <option value="en-US">EN</option>
-                  <option value="es-ES">ES</option>
-                  <option value="fr-FR">FR</option>
-                  <option value="pt-BR">PT</option>
+                  <option value=”en-US”>EN</option>
+                  <option value=”es-ES”>ES</option>
+                  <option value=”fr-FR”>FR</option>
+                  <option value=”pt-BR”>PT</option>
                 </select>
-                <div className="mic-split-divider"></div>
+                <div className=”mic-split-divider”></div>
                 <button
-                  type="button"
-                  className="mic-split-action"
+                  type=”button”
+                  className=”mic-split-action”
                   onClick={handleDictate}
                   disabled={generating}
-                  aria-label="Dictate prompt"
-                  title="Dictate prompt"
+                  aria-label=”Dictate prompt”
+                  title=”Dictate prompt”
                 >
                   <MicIcon isListening={isListening} />
                 </button>
               </div>
             </div>
-            <p
-              id="gen-prompt-char-count"
-              className={`prompt-char-count${genPrompt.length >= MAX_PROMPT_CHARS ? ' prompt-char-count--max' : ''}`}
-            >
-              {genPrompt.length}/{MAX_PROMPT_CHARS} characters
-            </p>
           </div>
 
-          <div className="form-group tld-section">
+          {/* Focus words field group */}
+          <div className=”form-group tld-section”>
             <FieldInfo
               label={
-                <span id="gen-keywords-label" className="field-section-label">
+                <span id=”gen-keywords-label” className=”field-section-label”>
                   Focus words (optional)
                 </span>
               }
-              ariaLabel="More about focus words"
+              ariaLabel=”More about focus words”
             >
               <p>
                 Add up to five single words (no spaces) that should weigh more heavily than the rest of your
@@ -332,24 +340,24 @@ const GeneratorTab = forwardRef(function GeneratorTab(
               </p>
               <p>They are optional; the model still reads your full description when you do not add any.</p>
             </FieldInfo>
-            <div className="tld-chips">
+            <div className=”tld-chips”>
               {genKeywords.map((keyword) => (
                 <button
                   key={keyword}
-                  type="button"
-                  className="tld-chip selected custom"
+                  type=”button”
+                  className=”tld-chip selected custom”
                   onClick={() => handleRemoveGenKeyword(keyword)}
                   disabled={generating}
-                  title="Remove this focus word"
+                  title=”Remove this focus word”
                 >
                   {keyword} &times;
                 </button>
               ))}
             </div>
-            <div className="custom-tld-input">
+            <div className=”custom-tld-input”>
               <input
-                type="text"
-                placeholder="Type a word, then Add"
+                type=”text”
+                placeholder=”Type a word, then Add”
                 value={genKeywordInput}
                 onChange={(e) => {
                   setGenKeywordInput(e.target.value);
@@ -362,11 +370,11 @@ const GeneratorTab = forwardRef(function GeneratorTab(
                   }
                 }}
                 disabled={generating}
-                aria-labelledby="gen-keywords-label"
+                aria-labelledby=”gen-keywords-label”
               />
               <button
-                type="button"
-                className="add-tld-btn"
+                type=”button”
+                className=”add-tld-btn”
                 onClick={handleAddGenKeyword}
                 disabled={generating || !genKeywordInput.trim() || genKeywords.length >= MAX_WEIGHTED_WORDS}
               >
@@ -378,117 +386,111 @@ const GeneratorTab = forwardRef(function GeneratorTab(
               text.
             </p>
             {genKeywordError && (
-              <p className="tld-error-msg" role="alert">
+              <p className=”tld-error-msg” role=”alert”>
                 {genKeywordError}
               </p>
             )}
           </div>
 
-          <div className="advanced-accordion">
-            <button
-              type="button"
-              className="advanced-accordion-trigger"
-              onClick={() => setAdvancedOpen((o) => !o)}
-              aria-expanded={advancedOpen}
-              id="advanced-label"
-            >
-              <span>Fine-tune name style (optional)</span>
-              <span className="advanced-chevron" aria-hidden>
-                {advancedOpen ? '▾' : '▸'}
-              </span>
-            </button>
-            <div
-              className="advanced-accordion-panel"
-              role="region"
-              aria-labelledby="advanced-label"
-              hidden={!advancedOpen}
-            >
-              <div className="advanced-panel-intro">
-                <p className="advanced-panel-intro-text">
-                  Optional hints for how names might sound—the model treats them as inspiration, not a checklist.
+        </div>
+        {/* END LEFT COLUMN */}
+
+        {/* RIGHT COLUMN */}
+        <div className=”gen-form-right”>
+
+          {/* Intro text for the right column (replaces accordion header) */}
+          <div className=”gen-form-right-intro”>
+            <p className=”advanced-panel-intro-text”>
+              Optional hints for how names might sound—the model treats them as inspiration, not a checklist.
+            </p>
+            <FieldInfoIcon ariaLabel=”More about fine-tuning name style”>
+              <p>
+                Prefixes and suffixes are comma-separated tokens (for example <code>get, try</code> or{' '}
+                <code>app, ly</code>). We pass them to the model as ideas it may blend in when they still feel
+                natural.
+              </p>
+              <p>You will not get every combination, and you can leave both fields empty.</p>
+            </FieldInfoIcon>
+          </div>
+
+          {/* Prefixes + Suffixes always visible (no accordion) */}
+          <div className=”form-row”>
+            <div className=”form-group”>
+              <FieldInfo
+                label={<label htmlFor=”gen-prefixes”>Prefixes (optional)</label>}
+                ariaLabel=”More about prefixes”
+              >
+                <p>
+                  Words or fragments that could appear <strong>before</strong> the core name. Separate entries with
+                  commas.
                 </p>
-                <FieldInfoIcon ariaLabel="More about fine-tuning name style">
-                  <p>
-                    Prefixes and suffixes are comma-separated tokens (for example <code>get, try</code> or{' '}
-                    <code>app, ly</code>). We pass them to the model as ideas it may blend in when they still feel
-                    natural.
-                  </p>
-                  <p>You will not get every combination, and you can leave both fields empty.</p>
-                </FieldInfoIcon>
-              </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <FieldInfo
-                    label={<label htmlFor="gen-prefixes">Prefixes (optional)</label>}
-                    ariaLabel="More about prefixes"
-                  >
-                    <p>
-                      Words or fragments that could appear <strong>before</strong> the core name (for example “get”
-                      in “getflow”). Separate entries with commas.
-                    </p>
-                  </FieldInfo>
-                  <input
-                    id="gen-prefixes"
-                    type="text"
-                    placeholder="e.g. get, try, my"
-                    value={genPrefixes}
-                    onChange={(e) => setGenPrefixes(e.target.value)}
-                    disabled={generating}
-                  />
-                </div>
-                <div className="form-group">
-                  <FieldInfo
-                    label={<label htmlFor="gen-suffixes">Suffixes (optional)</label>}
-                    ariaLabel="More about suffixes"
-                  >
-                    <p>
-                      Words or fragments that could appear <strong>after</strong> the core name (for example “ly” or
-                      “hq”). Separate entries with commas.
-                    </p>
-                  </FieldInfo>
-                  <input
-                    id="gen-suffixes"
-                    type="text"
-                    placeholder="e.g. app, hq, tech"
-                    value={genSuffixes}
-                    onChange={(e) => setGenSuffixes(e.target.value)}
-                    disabled={generating}
-                  />
-                </div>
-              </div>
+              </FieldInfo>
+              <input
+                id=”gen-prefixes”
+                type=”text”
+                placeholder=”e.g. get, try, my”
+                value={genPrefixes}
+                onChange={(e) => setGenPrefixes(e.target.value)}
+                disabled={generating}
+              />
+            </div>
+            <div className=”form-group”>
+              <FieldInfo
+                label={<label htmlFor=”gen-suffixes”>Suffixes (optional)</label>}
+                ariaLabel=”More about suffixes”
+              >
+                <p>
+                  Words or fragments that could appear <strong>after</strong> the core name. Separate entries with
+                  commas.
+                </p>
+              </FieldInfo>
+              <input
+                id=”gen-suffixes”
+                type=”text”
+                placeholder=”e.g. app, hq, tech”
+                value={genSuffixes}
+                onChange={(e) => setGenSuffixes(e.target.value)}
+                disabled={generating}
+              />
             </div>
           </div>
 
+          {/* Submit button at bottom of right column */}
           <button
-            type="submit"
-            className="search-btn generate-btn"
+            type=”submit”
+            className=”search-btn generate-btn gen-submit-btn”
             disabled={generating || !genPrompt.trim() || genPrompt.length > MAX_PROMPT_CHARS}
           >
             {generating ? 'Cooking up names…' : 'Generate ideas'}
           </button>
-        </form>
 
-        {genError && (
-          <div className="error-msg" role="alert" style={{ marginTop: '1rem' }}>
-            {genError}
-          </div>
-        )}
+        </div>
+        {/* END RIGHT COLUMN */}
 
-        {generating && (
-          <div className="loader-container">
-            <div className="spinner" />
-            <p className="text-muted">
-              Asking Gemini for fresh angles—usually just a few seconds.
-            </p>
-          </div>
-        )}
-      </div>
+      </form>
 
+      {/* Error and loading states — sibling to form */}
+      {genError && (
+        <div className=”error-msg” role=”alert” style={{ marginTop: '1rem' }}>
+          {genError}
+        </div>
+      )}
+
+      {generating && (
+        <div className=”loader-container”>
+          <div className=”spinner” />
+          <p className=”text-muted”>
+            Asking Gemini for fresh angles—usually just a few seconds.
+          </p>
+        </div>
+      )}
+
+      {/* Results area — unchanged */}
       {hasResult && (
-        <div className="generated-results">
-          <div className="tree-root-section">
+        <div className=”generated-results”>
+          <div className=”tree-root-section”>
             <TreeRoot bulkVerifying={bulkVerifying} />
-            <div className="tree-body">
+            <div className=”tree-body”>
               {generationResult.suggestions.map((suggestion, idx) => (
                 <TreeNode
                   key={`${suggestion.base}-${idx}`}
@@ -505,22 +507,22 @@ const GeneratorTab = forwardRef(function GeneratorTab(
           </div>
 
           {selectedDomains.size > 0 && (
-            <div className="verify-action-container">
+            <div className=”verify-action-container”>
               {bulkVerifying && verifyProgress && (
-                <span className="verify-progress">
+                <span className=”verify-progress”>
                   {verifyProgress.done} / {verifyProgress.total} verified
                 </span>
               )}
-              <div className="verify-action-col">
+              <div className=”verify-action-col”>
                 <button
-                  className="verify-btn"
+                  className=”verify-btn”
                   onClick={handleBulkVerify}
                   disabled={verifyDisabled}
                 >
                   {bulkVerifying ? 'Verifying…' : `Verify Selected (${selectedDomains.size})`}
                 </button>
                 {showVerifyHint && (
-                  <p className="verify-hint" role="note">
+                  <p className=”verify-hint” role=”note”>
                     This selection matches your last verification. Pick different domains if you want to run a
                     fresh check.
                   </p>
