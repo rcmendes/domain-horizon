@@ -250,6 +250,9 @@ header {
     text-align: center;
     gap: 16px;
   }
+  .gen-form-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .brand-logo-img {
@@ -730,6 +733,39 @@ header {
   margin-top: 0.75rem;
 }
 
+/* Generator two-column grid */
+.gen-form-grid {
+  display: grid;
+  grid-template-columns: 60fr 40fr;
+  gap: 2rem;
+  align-items: start;
+  margin-top: 1rem;
+}
+
+.gen-form-left {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.gen-form-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.gen-form-right-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.gen-submit-btn {
+  margin-top: auto;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -859,31 +895,11 @@ header {
   max-width: none;
 }
 
-.advanced-panel-intro {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.35rem;
-  margin-bottom: 0.75rem;
-}
-
 .advanced-panel-intro-text {
   font-size: 0.85rem;
   color: var(--text-muted);
   line-height: 1.45;
   margin: 0;
-}
-
-.advanced-panel-intro .field-info-icon-root {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  width: 100%;
-}
-
-.advanced-panel-intro .field-info-icon-root .field-info-panel {
-  width: 100%;
-  align-self: stretch;
 }
 
 .form-group input,
@@ -902,7 +918,8 @@ header {
 }
 
 textarea#gen-prompt {
-  padding: 1.15rem 3rem 1.15rem 1.35rem;
+  padding: 1.15rem 1.35rem;
+  min-height: 7rem;
 }
 
 .prompt-textarea-wrapper {
@@ -910,10 +927,19 @@ textarea#gen-prompt {
   width: 100%;
 }
 
+.prompt-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.35rem;
+  gap: 0.5rem;
+}
+
+.prompt-footer .prompt-char-count {
+  margin-top: 0;
+}
+
 .mic-split-btn {
-  position: absolute;
-  top: 0.8rem;
-  right: 0.8rem;
   display: flex;
   align-items: stretch;
   background: var(--glass-surface);
@@ -1362,7 +1388,6 @@ textarea#gen-prompt {
 .custom-tld-input {
   display: flex;
   gap: 0.5rem;
-  max-width: 300px;
 }
 
 .custom-tld-input input {
@@ -2617,45 +2642,6 @@ textarea#gen-prompt {
   margin: 0;
 }
 
-/* ── Generator advanced accordion ───────────────────────────────────────── */
-.advanced-accordion {
-  margin-top: 0.25rem;
-}
-
-.advanced-accordion-trigger {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.65rem 0.9rem;
-  border-radius: 12px;
-  border: 1px solid var(--glass-border);
-  background: var(--input-bg);
-  color: var(--text-main);
-  font-family: var(--font-family);
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
-}
-
-.advanced-accordion-trigger:hover {
-  background: var(--card-hover);
-  border-color: var(--primary);
-}
-
-.advanced-chevron {
-  color: var(--text-muted);
-  font-size: 0.75rem;
-}
-
-.advanced-accordion-panel {
-  padding-top: 1rem;
-}
-
-.advanced-accordion-panel[hidden] {
-  display: none;
-}
 
 .favorites-header {
   border-bottom: 1px solid var(--glass-border);
