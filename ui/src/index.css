@@ -733,6 +733,28 @@ header {
   margin-top: 0.75rem;
 }
 
+/* Direct Search — search bar row */
+.search-bar-form {
+  margin-top: 1rem;
+}
+
+.search-bar-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.search-bar-input {
+  flex: 1;
+  font-size: 1.05rem;
+  min-width: 0;
+}
+
+.search-bar-btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 /* Generator two-column grid */
 .gen-form-grid {
   display: grid;
@@ -1930,6 +1952,12 @@ textarea#gen-prompt {
 @media (max-width: 640px) {
   h1 { font-size: 2.5rem; }
   .search-container { flex-direction: column; }
+  .search-bar-row {
+    flex-direction: column;
+  }
+  .search-bar-btn {
+    width: 100%;
+  }
   .search-input { padding: 1rem 1.5rem; font-size: 1rem; }
   .search-btn {
     position: static;
