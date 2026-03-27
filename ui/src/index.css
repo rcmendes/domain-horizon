@@ -236,20 +236,79 @@ header {
   animation: fadeInDown 0.8s ease-out forwards;
 }
 
-h1 {
-  font-size: 3.5rem;
-  font-weight: 700;
-  background: linear-gradient(to right, #818cf8, #34d399);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 0.5rem;
+/* --- Brand Composition Header --- */
+.brand-composition {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .brand-composition {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+}
+
+.brand-logo-img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+}
+
+.brand-text-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+@media (max-width: 768px) {
+  .brand-text-content {
+    align-items: center;
+  }
+}
+
+.brand-text-container {
+  display: flex;
+  align-items: center;
+  font-size: 4.5rem;
+  line-height: 1;
+}
+
+@media (max-width: 768px) {
+  .brand-text-container {
+    font-size: 3.5rem;
+  }
+}
+
+.brand-nomo {
+  font-weight: 300;
+  color: var(--text-main);
+  /* Simulate outlined/light effect that adapts to light/dark themes */
+  -webkit-text-stroke: 1px var(--text-muted);
   letter-spacing: -1px;
 }
 
-header p {
-  font-size: 1.2rem;
+.brand-lens {
+  font-weight: 700;
+  background: linear-gradient(135deg, #a855f7 0%, #6366f1 35%, #0ea5e9 65%, #0369a1 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2));
+  margin-left: 8px;
+  letter-spacing: -2px;
+}
+
+.brand-tagline {
+  font-family: 'Caveat', cursive, var(--font-family);
+  font-size: 1.6rem;
   color: var(--text-muted);
+  margin-top: -5px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 }
 
 /* Glassmorphism Common Utility */
@@ -1147,6 +1206,32 @@ textarea#gen-prompt {
   align-content: start;
 }
 
+.compact-info-grid--error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.compact-error-sadface {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  opacity: 0.6;
+}
+
+.compact-error-face-char {
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  color: var(--color-warning);
+}
+
+.compact-error-face-msg {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 /* Owner row spans both columns */
 .compact-info-col--owner {
   grid-column: 1 / -1;
@@ -1205,6 +1290,7 @@ textarea#gen-prompt {
   background: rgba(0, 0, 0, 0.04);
   border-radius: 6px;
   border: 1px solid var(--glass-border);
+  min-height: 3rem;
 }
 
 [data-theme="dark"] .compact-restrictions {
@@ -1214,6 +1300,11 @@ textarea#gen-prompt {
 .compact-restrictions-value {
   color: var(--text-main);
   font-weight: 500;
+}
+
+.compact-restrictions-placeholder {
+  display: block;
+  height: 1.1em;
 }
 
 /* --- TLD Selection Styles --- */
@@ -1459,11 +1550,13 @@ textarea#gen-prompt {
   margin-top: 0.5rem;
 }
 
-.tree-root-row {
+.tree-root-centered {
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 0.6rem;
+  margin-bottom: 1.25rem;
+  text-align: center;
 }
 
 .tree-root-icon {
@@ -1483,16 +1576,25 @@ textarea#gen-prompt {
 }
 
 .tree-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 0.65rem;
+}
+
+.tree-node {
+  background: var(--tree-bg);
+  border: 1px solid var(--tree-border);
+  border-radius: 10px;
+  padding: 0.65rem 0.8rem;
+  transition: border-color 0.15s;
+}
+
+.tree-node--has-free {
+  border-left: 2px solid var(--color-available, #22c55e);
 }
 
 .tree-node-header {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  margin-bottom: 0.15rem;
+  margin-bottom: 0.35rem;
 }
 
 .tree-connector {

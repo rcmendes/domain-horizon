@@ -623,8 +623,17 @@ function AppInner() {
 
       <div className="layout-wrapper">
         <div className="app-container">
-          <header>
-            <img src="/logo.png" alt="Nomo Lens" className="app-logo" style={{ maxWidth: '800px', width: '100%', height: 'auto', marginBottom: '1rem', display: 'block', margin: '0 auto' }} />
+          <header className="brand-composition">
+            <img src="/logo.png" alt="Nomo Lens Logo" className="brand-logo-img" />
+            <div className="brand-text-content">
+              <div className="brand-text-container">
+                <span className="brand-nomo">Nomo</span>
+                <span className="brand-lens">Lens</span>
+              </div>
+              <div className="brand-tagline">
+                Your ideas deserve the perfect name. Let's find it together.
+              </div>
+            </div>
           </header>
 
           <div

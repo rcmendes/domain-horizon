@@ -103,22 +103,20 @@ function TreeRoot({ bulkVerifying }) {
   }, [bulkVerifying]);
 
   return (
-    <div className="tree-root-row">
+    <div className="tree-root-centered">
       <span className="tree-root-icon">◈</span>
       <span className="tree-root-label">{phrase ?? 'Name seeds'}</span>
     </div>
   );
 }
 
-function TreeNode({ base, domains, selectedDomains, onToggle, bulkVerifying, bulkResults, onToggleGroup, isLast }) {
+function TreeNode({ base, domains, selectedDomains, onToggle, bulkVerifying, bulkResults, onToggleGroup }) {
   const allSelected = domains.every((d) => selectedDomains.has(d));
-  const nodeConnector = isLast ? '└──' : '├──';
-  const tldIndentPrefix = isLast ? '    ' : '│   ';
+  const hasFreeDomain = domains.some((d) => bulkResults[d]?.data?.available);
 
   return (
-    <div className="tree-node">
+    <div className={`tree-node${hasFreeDomain ? ' tree-node--has-free' : ''}`}>
       <div className="tree-node-header">
-        <span className="tree-connector">{nodeConnector}</span>
         <button
           type="button"
           className={`tree-node-label ${allSelected ? 'tree-node-label--all' : ''}`}
@@ -135,7 +133,7 @@ function TreeNode({ base, domains, selectedDomains, onToggle, bulkVerifying, bul
           const isLastTld = i === domains.length - 1;
           return (
             <div key={d} className="tree-tld-row">
-              <span className="tree-connector">{tldIndentPrefix}{isLastTld ? '└──' : '├──'}</span>
+              <span className="tree-connector">{isLastTld ? '└──' : '├──'}</span>
               <TldPill
                 domain={d}
                 selected={selectedDomains.has(d)}
@@ -243,7 +241,7 @@ const GeneratorTab = forwardRef(function GeneratorTab(
   const showVerifyHint = selectedDomains.size > 0 && verifyDisabled && !bulkVerifying;
 
   return (
-    <section className="mode-section mode-section--static mode-section--wide glass">
+    <section className={`mode-section mode-section--static${hasResult ? ' mode-section--wide' : ''} glass`}>
       <div style={{ maxWidth: '700px', margin: '0 auto' }}>
         <h2 className="sr-only">Generate names with AI</h2>
         <p className="lead-muted-center">
@@ -501,7 +499,6 @@ const GeneratorTab = forwardRef(function GeneratorTab(
                   bulkVerifying={bulkVerifying}
                   bulkResults={bulkResults}
                   onToggleGroup={handleToggleGroup}
-                  isLast={idx === generationResult.suggestions.length - 1}
                 />
               ))}
             </div>

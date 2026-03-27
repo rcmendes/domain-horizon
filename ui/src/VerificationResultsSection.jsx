@@ -110,6 +110,16 @@ function VerificationCard({
           )}
         </div>
 
+        {/* Error state — same footprint as info-grid */}
+        {!result.loading && result.error && (
+          <div className="compact-info-grid compact-info-grid--error">
+            <div className="compact-error-sadface">
+              <span className="compact-error-face-char">( ˘︹˘ )</span>
+              <span className="compact-error-face-msg">The registrar wasn't talking.</span>
+            </div>
+          </div>
+        )}
+
         {/* Unified info box: price for available, WHOIS for taken/unavailable */}
         {!result.loading && !result.error && result.data && (
           result.data.available ? (
@@ -157,11 +167,17 @@ function VerificationCard({
           </div>
         )}
 
-        {/* Restrictions */}
-        {!result.loading && !result.error && result.data?.restrictions && (
-          <div className="compact-restrictions" title={result.data.restrictions.description}>
-            <span className="compact-label">Restrictions:</span>{' '}
-            <span className="compact-restrictions-value">{result.data.restrictions.countryRestriction}</span>
+        {/* Restrictions — always rendered for consistent card height */}
+        {!result.loading && (
+          <div className="compact-restrictions" title={result.data?.restrictions?.description}>
+            {result.data?.restrictions ? (
+              <>
+                <span className="compact-label">Restrictions:</span>{' '}
+                <span className="compact-restrictions-value">{result.data.restrictions.countryRestriction}</span>
+              </>
+            ) : (
+              <span className="compact-restrictions-placeholder">&nbsp;</span>
+            )}
           </div>
         )}
 
