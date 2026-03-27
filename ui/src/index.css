@@ -964,7 +964,7 @@ textarea#gen-prompt {
 .mic-split-btn {
   display: flex;
   align-items: stretch;
-  background: var(--glass-surface);
+  background: var(--card-bg);
   border: 1px solid var(--glass-border);
   border-radius: 8px;
   overflow: hidden;
@@ -973,11 +973,11 @@ textarea#gen-prompt {
 
 .mic-split-btn:hover {
   border-color: var(--primary);
-  background: var(--glass-surface-hover);
+  background: var(--card-hover);
 }
 
 .mic-split-btn.listening {
-  border-color: var(--error-main);
+  border-color: var(--color-danger);
   animation: pulse-mic 1.5s infinite;
 }
 
@@ -1021,7 +1021,7 @@ textarea#gen-prompt {
 }
 
 .mic-split-btn.listening .mic-split-action {
-  color: var(--error-main);
+  color: var(--danger-fg);
 }
 
 @keyframes pulse-mic {
