@@ -49,7 +49,7 @@ const DirectSearchTab = forwardRef(function DirectSearchTab(
       </form>
 
       {error && (
-        <div className="error-msg" role="alert" style={{ marginTop: '1.5rem' }}>
+        <div className="error-msg" role="alert">
           <span>{error}</span>
           {onRetry && (
             <button className="retry-btn" onClick={onRetry} type="button">
