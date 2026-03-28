@@ -24,7 +24,7 @@ function AppInner() {
   } = useTld();
   
   const {
-    favorites, addFavorite, removeFavorite, updateFavoriteField,
+    favorites, addFavorite: _addFavorite, removeFavorite: _removeFavorite, updateFavoriteField,
     isFavorite, refreshFavorite, recheckingDomain
   } = useFavorites();
 
@@ -32,6 +32,17 @@ function AppInner() {
     bulkResults, setBulkResults, bulkVerifying, verifyProgress,
     loading, error, doSearch, handleBulkVerify, refreshDomainCheck
   } = useDomainVerification();
+
+  // Wrap favorite actions with toast feedback
+  const addFavorite = useCallback((domain, data) => {
+    _addFavorite(domain, data);
+    toast.show(`Added ${domain} to favorites`, { kind: 'success' });
+  }, [_addFavorite, toast]);
+
+  const removeFavorite = useCallback((domain) => {
+    _removeFavorite(domain);
+    toast.show(`Removed ${domain} from favorites`, { kind: 'info' });
+  }, [_removeFavorite, toast]);
 
   const {
     genPrompt, setGenPrompt, genKeywords, genKeywordInput, setGenKeywordInput,
@@ -55,7 +66,6 @@ function AppInner() {
   const tabSearchRef = useRef(null);
   const tabGenerateRef = useRef(null);
   const tabFavoritesRef = useRef(null);
-  const tabListRef = useRef(null);
 
   const [paletteOpen, setPaletteOpen] = useState(false);
   const isMac = useMemo(() => {
@@ -81,11 +91,15 @@ function AppInner() {
   const handleSearch = (e) => {
     e.preventDefault();
     if (!query.trim()) return;
+    setLastVerifiedDomains(new Set()); // Clear generator verification state
     doSearch(query, selectedTLDs);
   };
 
   const handleRetry = () => {
-    if (query.trim()) doSearch(query, selectedTLDs);
+    if (query.trim()) {
+      setLastVerifiedDomains(new Set());
+      doSearch(query, selectedTLDs);
+    }
   };
 
   const skipInitialUrlWrite = useRef(true);
@@ -161,11 +175,14 @@ function AppInner() {
 
   const onTabListKeyDown = (e) => {
     const order = ['search', 'generate', 'favorites'];
+    const refs = [tabSearchRef, tabGenerateRef, tabFavoritesRef];
     const i = order.indexOf(activeTab);
     if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
       e.preventDefault();
       const next = e.key === 'ArrowRight' ? (i + 1) % order.length : (i - 1 + order.length) % order.length;
       setActiveTab(order[next]);
+      // Move focus to the newly active tab (ARIA tablist pattern)
+      setTimeout(() => refs[next].current?.focus(), 0);
     }
   };
 
@@ -181,8 +198,11 @@ function AppInner() {
     />
   );
 
+  // Track which tab last populated bulkResults to avoid cross-contamination
   const showDirectVerification = activeTab === 'search' && Object.keys(bulkResults).length > 0;
-  const showGenerateVerification = activeTab === 'generate' && generationResult && Object.keys(bulkResults).length > 0;
+  // Generator verification: only show if the user has actually verified generated domains
+  // (lastVerifiedDomains.size > 0 means the bulk verify was run from the generator)
+  const showGenerateVerification = activeTab === 'generate' && generationResult && lastVerifiedDomains.size > 0 && Object.keys(bulkResults).length > 0;
 
   return (
     <div className="page-shell">
@@ -238,7 +258,10 @@ function AppInner() {
               >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
                 {tab === 'favorites' && favorites.length > 0 && (
-                  <span className="sr-only">({favorites.length} items)</span>
+                  <>
+                    <span className="sr-only">({favorites.length} items)</span>
+                    <span className="tab-badge" aria-hidden="true">{favorites.length}</span>
+                  </>
                 )}
               </button>
             ))}
@@ -291,9 +314,15 @@ function AppInner() {
                   hasSelectionChanged={hasSelectionChanged}
                   bulkVerifying={bulkVerifying}
                   bulkResults={bulkResults}
-                  handleBulkVerify={() => handleBulkVerify(selectedDomains)}
+                  handleBulkVerify={async () => {
+                    await handleBulkVerify(selectedDomains);
+                    setLastVerifiedDomains(new Set(selectedDomains));
+                  }}
                   verifyProgress={verifyProgress}
-                  onGenerate={() => handleGenerate(selectedTLDs)}
+                  onGenerate={() => {
+                    setBulkResults({});
+                    handleGenerate(selectedTLDs);
+                  }}
                   addFavorite={addFavorite}
                   removeFavorite={removeFavorite}
                   isFavorite={isFavorite}

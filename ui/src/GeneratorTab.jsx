@@ -190,6 +190,11 @@ const GeneratorTab = forwardRef(function GeneratorTab(
   const [isListening, setIsListening] = useState(false);
   const [dictationLang, setDictationLang] = useState('en-US');
 
+  const handleSubmitGenerate = (e) => {
+    e.preventDefault();
+    onGenerate();
+  };
+
   const handleDictate = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -256,7 +261,7 @@ const GeneratorTab = forwardRef(function GeneratorTab(
         </p>
       </div>
 
-      <form className="generator-form" onSubmit={onGenerate}>
+      <form className="generator-form" onSubmit={handleSubmitGenerate}>
       <div className="gen-form-grid">
 
         {/* LEFT COLUMN */}

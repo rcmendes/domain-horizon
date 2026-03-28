@@ -84,105 +84,93 @@ function VerificationCard({
   );
 
   return (
-    <div className={`compact-result-card glass status-${status}`}>
-
-      {/* Highlighted header band: domain name + action buttons */}
-      <div className="compact-card-header">
-        <span className="compact-domain" title={domain}>{domain}</span>
-        {!result.loading && <div className="compact-header-actions">{actionButtons}</div>}
+    <div className={`editorial-result-card glass-obsidian status-${status}`}>
+      {/* Editorial Header: Domain name + favoriting/actions */}
+      <div className="editorial-card-header">
+        <div className="editorial-domain-wrap">
+          <span className="editorial-domain" title={domain}>{domain}</span>
+          {status === 'available' && <span className="editorial-status-dot available" />}
+        </div>
+        {!result.loading && <div className="editorial-header-actions">{actionButtons}</div>}
       </div>
 
-      {/* Card body */}
-      <div className="compact-card-body">
-
-        {/* Status badge + timestamp */}
-        <div className="compact-status-row">
-          <div className="compact-badges">
-            {status === 'loading' && <span className="compact-badge checking">Checking…</span>}
-            {status === 'error' && <span className="compact-badge error">Error</span>}
-            {status === 'available' && <span className="compact-badge available">Available</span>}
-            {status === 'taken' && <span className="compact-badge taken">Taken</span>}
-            {status === 'unavailable' && <span className="compact-badge unavailable">Unavailable</span>}
-            {status === 'expiring-soon' && <span className="compact-badge taken">Taken</span>}
-          </div>
+      {/* Editorial Body: Visualizes status and key data in a stacked vertical grid */}
+      <div className="editorial-card-body">
+        <div className="editorial-status-line">
+          <span className={`editorial-status-label status-${status}`}>
+            {status === 'loading' ? 'Verifying...' : status.replace('-', ' ')}
+          </span>
           {!result.loading && checkedLabel && (
-            <p className="compact-checked-at">Checked {checkedLabel}</p>
+            <span className="editorial-timestamp">As of {checkedLabel}</span>
           )}
         </div>
 
-        {/* Error state — same footprint as info-grid */}
-        {!result.loading && result.error && (
-          <div className="compact-info-grid compact-info-grid--error">
-            <div className="compact-error-sadface">
-              <span className="compact-error-face-char">( ˘︹˘ )</span>
-              <span className="compact-error-face-msg">The registrar wasn't talking.</span>
-            </div>
-          </div>
-        )}
-
-        {/* Unified info box: price for available, WHOIS for taken/unavailable */}
         {!result.loading && !result.error && result.data && (
-          result.data.available ? (
-            <div className="compact-info-grid">
-              <div className="compact-info-col compact-info-col--owner">
-                <span className="compact-label">Price</span>
-                {hasPrice ? (
-                  <span className="compact-price-inline">
-                    {result.data.currency === 'USD' ? '$' : result.data.currency + ' '}
-                    {result.data.price}
-                  </span>
-                ) : (
-                  <span className="compact-value">—</span>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="compact-info-grid">
-              <div className="compact-info-col compact-info-col--owner">
-                <span className="compact-label">Owner</span>
-                <span className="compact-value compact-value--wrap" title={result.data.owner || 'Unknown'}>
-                  {result.data.owner || 'Unknown'}
+          <div className="editorial-data-grid">
+            {result.data.available ? (
+              <div className="editorial-data-item highlight">
+                <span className="editorial-data-label">Registration Price</span>
+                <span className="editorial-data-value price">
+                  {result.data.currency === 'USD' ? '$' : result.data.currency + ' '}
+                  {result.data.price || '—'}
                 </span>
               </div>
-              <div className="compact-info-col compact-info-col--purchased">
-                <span className="compact-label">Purchased</span>
-                <span className="compact-value">
-                  {result.data.purchasedDate?.split('T')[0] || '-'}
-                </span>
-              </div>
-              <div className="compact-info-col compact-info-col--expires">
-                <span className="compact-label">Expires</span>
-                <span className="compact-value">
-                  {result.data.expirationDate?.split('T')[0] || '-'}
-                </span>
-              </div>
-            </div>
-          )
-        )}
-
-        {/* Expiry warning strip */}
-        {status === 'expiring-soon' && (
-          <div className="compact-expiry-warning">
-            ⚠ Expiring soon{daysUntilExpiry !== null ? ` — ${daysUntilExpiry} day${daysUntilExpiry !== 1 ? 's' : ''} remaining` : ''}
-          </div>
-        )}
-
-        {/* Restrictions — always rendered for consistent card height */}
-        {!result.loading && (
-          <div className="compact-restrictions" title={result.data?.restrictions?.description}>
-            {result.data?.restrictions ? (
-              <>
-                <span className="compact-label">Restrictions:</span>{' '}
-                <span className="compact-restrictions-value">{result.data.restrictions.countryRestriction}</span>
-              </>
             ) : (
-              <span className="compact-restrictions-placeholder">&nbsp;</span>
+              <>
+                <div className="editorial-data-item">
+                  <span className="editorial-data-label">Registered To</span>
+                  <span className="editorial-data-value" title={result.data.owner || 'Hidden'}>
+                    {result.data.owner || 'Privately Held'}
+                  </span>
+                </div>
+                <div className="editorial-data-row">
+                  <div className="editorial-data-item">
+                    <span className="editorial-data-label">Acquired</span>
+                    <span className="editorial-data-value">
+                      {result.data.purchasedDate?.split('T')[0] || 'Unknown'}
+                    </span>
+                  </div>
+                  <div className="editorial-data-item">
+                    <span className="editorial-data-label">Expires</span>
+                    <span className="editorial-data-value">
+                      {result.data.expirationDate?.split('T')[0] || 'Unknown'}
+                    </span>
+                  </div>
+                </div>
+              </>
             )}
           </div>
         )}
 
+        {/* Error Handling */}
+        {!result.loading && result.error && (
+          <div className="editorial-error-blob">
+            <span className="editorial-error-icon">⚠</span>
+            <span className="editorial-error-text">
+              {typeof result.error === 'string' ? result.error : 'Failed to check domain availability.'}
+            </span>
+          </div>
+        )}
+
+        {/* Expiry Warning Overlay */}
+        {status === 'expiring-soon' && (
+          <div className="editorial-warning-pill">
+            Expiring in {daysUntilExpiry || 'few'} days
+          </div>
+        )}
       </div>
 
+      {/* Editorial Footer: Restrictions & Secondary Data */}
+      <footer className="editorial-card-footer">
+        {result.data?.restrictions ? (
+          <div className="editorial-restriction-tag">
+            <span className="editorial-restriction-label">Requirement:</span>
+            <span className="editorial-restriction-value">{result.data.restrictions.countryRestriction}</span>
+          </div>
+        ) : (
+          <div className="editorial-footer-placeholder" />
+        )}
+      </footer>
     </div>
   );
 }

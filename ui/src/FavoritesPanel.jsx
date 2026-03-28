@@ -74,7 +74,16 @@ export default function FavoritesPanel({
   const [domainQuery, setDomainQuery] = useState('');
   const [sortKey, setSortKey] = useState('name');
   const [sortDir, setSortDir] = useState('asc');
-  const [expandedDomain, setExpandedDomain] = useState(null);
+  const [expandedDomains, setExpandedDomains] = useState(new Set());
+
+  const toggleExpanded = (domain) => {
+    setExpandedDomains((prev) => {
+      const next = new Set(prev);
+      if (next.has(domain)) next.delete(domain);
+      else next.add(domain);
+      return next;
+    });
+  };
 
   const toggleStatusFilter = (status) => {
     setFilterStatuses((prev) => {
@@ -227,116 +236,125 @@ export default function FavoritesPanel({
           {/* ── Right: Cards grid ── */}
           <ul className="fav-tab-grid" role="list">
             {filteredAndSortedFavorites.map((row) => {
-              const isExpanded = expandedDomain === row.domain;
+              const isExpanded = expandedDomains.has(row.domain);
               const hasExpiry = row.status !== 'available' && row.expirationDate && row.expirationDate !== 'Unknown';
               const hasChecked = !!row.checkedAt;
+              const isAvailable = row.status === 'available';
 
               return (
-                <li key={row.domain} className="fav-grid-card">
-                  {/* Card header */}
-                  <div className="fav-card-header">
-                    <h4 className="fav-card-domain" title={row.domain}>{row.domain}</h4>
-                    <button
-                      className="favorites-remove-btn fav-card-remove-btn"
-                      onClick={() => onRemove(row.domain)}
-                      aria-label={`Remove ${row.domain} from favorites`}
-                      title="Remove from favorites"
-                    >
-                      ✕
-                    </button>
+                <li key={row.domain} className="glass-obsidian editorial-result-card">
+                  {/* Card Header */}
+                  <div className="editorial-card-header">
+                    <div className="editorial-domain-wrap">
+                      {isAvailable && <span className="editorial-status-dot available" />}
+                      <h4 className="editorial-domain" title={row.domain}>{row.domain}</h4>
+                    </div>
+                    <div className="editorial-header-actions">
+                      <button
+                        type="button"
+                        className="favorites-remove-btn"
+                        onClick={() => onRemove(row.domain)}
+                        aria-label={`Remove ${row.domain} from favorites`}
+                        title="Remove from favorites"
+                      >
+                        ✕
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Status + price row */}
-                  <div className="fav-card-info-row">
-                    {row.status && (
-                      <span className={`favorites-item-badge fav-status-${row.status}`}>
+                  {/* Card Body */}
+                  <div className="editorial-card-body">
+                    <div className="editorial-status-line">
+                      <span className={`editorial-status-label status-${row.status}`}>
                         {statusLabel(row.status)}
                       </span>
-                    )}
-                    {row.price != null && row.status === 'available' && (
-                      <span className="favorites-item-price">
-                        {row.currency === 'USD' ? '$' : `${row.currency ?? ''} `}
-                        {row.price}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Dates */}
-                  {(hasExpiry || hasChecked) && (
-                    <p className="fav-card-dates">
-                      {hasExpiry && <span>Expires {fmtDate(row.expirationDate)}</span>}
-                      {hasExpiry && hasChecked && <span className="fav-card-dates-sep" aria-hidden>·</span>}
-                      {hasChecked && <span>Checked {fmtDate(row.checkedAt)}</span>}
-                    </p>
-                  )}
-
-                  {/* Actions */}
-                  <div className="fav-card-actions" role="group" aria-label={`Actions for ${row.domain}`}>
-                    <button
-                      type="button"
-                      className="fav-card-action-btn active"
-                      onClick={() => onRemove(row.domain)}
-                      aria-label={`Remove ${row.domain} from favorites`}
-                      title="Remove from favorites"
-                    >
-                      <StarIcon filled={true} size={18} />
-                      <span className="fav-card-action-label">Favorited</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="fav-card-action-btn"
-                      onClick={() => onRecheck?.(row.domain)}
-                      disabled={recheckingDomain === row.domain}
-                      aria-label={`Refresh check for ${row.domain}`}
-                      title="Refresh this check"
-                    >
-                      {recheckingDomain === row.domain ? (
-                        <span className="fav-card-action-label">Refreshing…</span>
-                      ) : (
-                        <>
-                          <RefreshIcon size={16} />
-                          <span className="fav-card-action-label">Refresh</span>
-                        </>
+                      {hasChecked && (
+                        <span className="editorial-timestamp">
+                          Checked {fmtDate(row.checkedAt)}
+                        </span>
                       )}
-                    </button>
-                    <button
-                      type="button"
-                      className={`fav-card-action-btn fav-card-notes-toggle${isExpanded ? ' active' : ''}`}
-                      onClick={() => setExpandedDomain(isExpanded ? null : row.domain)}
-                      aria-label={isExpanded ? 'Hide notes' : 'Show notes & tags'}
-                      title={isExpanded ? 'Hide notes' : 'Notes & tags'}
-                    >
-                      <span className="fav-card-action-label">{isExpanded ? 'Hide' : 'Notes'}</span>
-                    </button>
-                  </div>
-
-                  {/* Collapsible notes & tags */}
-                  {isExpanded && (
-                    <div className="fav-card-extras">
-                      <label className="favorites-field-label">
-                        <span className="sr-only">Notes for {row.domain}</span>
-                        <textarea
-                          className="favorites-notes"
-                          rows={2}
-                          placeholder="Notes…"
-                          value={row.notes ?? ''}
-                          onChange={(e) => onUpdateFavorite?.(row.domain, { notes: e.target.value })}
-                          aria-label={`Notes for ${row.domain}`}
-                        />
-                      </label>
-                      <label className="favorites-field-label favorites-tags-label">
-                        <span>Tags</span>
-                        <input
-                          type="text"
-                          className="favorites-tags-input"
-                          placeholder="e.g. watch, client-a"
-                          value={row.tags ?? ''}
-                          onChange={(e) => onUpdateFavorite?.(row.domain, { tags: e.target.value })}
-                          aria-label={`Tags for ${row.domain}`}
-                        />
-                      </label>
                     </div>
-                  )}
+
+                    <div className="editorial-data-grid">
+                      {isAvailable && row.price != null && (
+                        <div className="editorial-data-item highlight">
+                          <span className="editorial-data-label">Price Estimate</span>
+                          <span className="editorial-data-value price">
+                            {row.currency === 'USD' ? '$' : `${row.currency ?? ''} `}
+                            {row.price}
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="editorial-data-row">
+                        {hasExpiry && (
+                          <div className="editorial-data-item">
+                            <span className="editorial-data-label">Expires</span>
+                            <span className="editorial-data-value">{fmtDate(row.expirationDate)}</span>
+                          </div>
+                        )}
+                        {row.tags && (
+                          <div className="editorial-data-item">
+                            <span className="editorial-data-label">Tags</span>
+                            <span className="editorial-data-value">{row.tags}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Collapsible notes & tags */}
+                    <div className="editorial-actions-footer">
+                      <div className="editorial-header-actions" style={{ marginTop: '1rem' }}>
+                        <button
+                          type="button"
+                          className={`nav-tab ${recheckingDomain === row.domain ? 'loading' : ''}`}
+                          style={{ padding: '0.4rem 1rem', fontSize: '0.75rem' }}
+                          onClick={() => onRecheck?.(row.domain)}
+                          disabled={recheckingDomain === row.domain}
+                        >
+                          {recheckingDomain === row.domain ? 'Updating...' : 'Refresh'}
+                        </button>
+                        <button
+                          type="button"
+                          className={`nav-tab ${isExpanded ? 'active' : ''}`}
+                          style={{ padding: '0.4rem 1rem', fontSize: '0.75rem' }}
+                          onClick={() => toggleExpanded(row.domain)}
+                        >
+                          {isExpanded ? 'Close' : 'Notes'}
+                        </button>
+                      </div>
+
+                      {isExpanded && (
+                        <div className="editorial-data-item" style={{ marginTop: '1.5rem' }}>
+                          <span className="editorial-data-label">Notes</span>
+                          <textarea
+                            className="tld-input-inline"
+                            style={{ 
+                              width: '100%', 
+                              borderRadius: '12px', 
+                              marginTop: '0.5rem',
+                              minHeight: '80px',
+                              resize: 'vertical'
+                            }}
+                            placeholder="Add notes..."
+                            value={row.notes ?? ''}
+                            onChange={(e) => onUpdateFavorite?.(row.domain, { notes: e.target.value })}
+                          />
+                          <div style={{ marginTop: '1rem' }}>
+                            <span className="editorial-data-label">Edit Tags</span>
+                            <input
+                              type="text"
+                              className="tld-input-inline"
+                              style={{ width: '100%', borderRadius: '12px', marginTop: '0.5rem' }}
+                              placeholder="e.g. watch, client-a"
+                              value={row.tags ?? ''}
+                              onChange={(e) => onUpdateFavorite?.(row.domain, { tags: e.target.value })}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </li>
               );
             })}
