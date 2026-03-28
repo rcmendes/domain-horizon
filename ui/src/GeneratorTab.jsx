@@ -249,9 +249,22 @@ const GeneratorTab = forwardRef(function GeneratorTab(
     <section className="mode-section mode-section--static mode-section--wide glass">
       <h2 className="sr-only">Generate names with AI</h2>
       <div className="generator-lead">
-        <span className="generator-lead__eyebrow">
-          <SeedRootIcon /> name generator
-        </span>
+        <div className="generator-lead__eyebrow">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ marginRight: '0.1rem' }}
+          >
+            <path d="M7 13l5 5 5-5M7 6l5 5 5-5" />
+          </svg>
+          NAME GENERATOR
+        </div>
         <p className="generator-lead__copy">
           Describe what you're building in{' '}
           <span className="generator-lead__accent">plain language</span>
