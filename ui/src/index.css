@@ -685,15 +685,34 @@ header {
   box-shadow: 0 50px 120px -30px rgba(0, 0, 0, 0.8);
 }
 
-/* ── Free Domain Visual Highlight ── */
+/* ── Status-specific Highlight Borders ── */
 .editorial-result-card.status-available {
-  border: 4px solid rgba(0, 255, 136, 0.5);
-  box-shadow: 0 0 25px rgba(0, 255, 136, 0.08), var(--box-shadow);
+  border: 4px solid var(--success-border);
+  box-shadow: 0 0 25px rgba(0, 227, 253, 0.08), var(--box-shadow);
 }
 
 .editorial-result-card.status-available:hover {
-  border-color: rgba(0, 255, 136, 0.8);
-  box-shadow: 0 0 40px rgba(0, 255, 136, 0.15), 0 50px 120px -30px rgba(0, 0, 0, 0.8);
+  border-color: var(--success-fg);
+  box-shadow: 0 0 35px rgba(0, 227, 253, 0.15), var(--box-shadow);
+}
+
+.editorial-result-card.status-expiring-soon {
+  border: 2px solid var(--warning-border);
+  box-shadow: 0 0 20px rgba(255, 150, 30, 0.05), var(--box-shadow);
+}
+
+.editorial-result-card.status-expiring-soon:hover {
+  border-color: var(--warning-fg);
+  box-shadow: 0 0 30px rgba(255, 150, 30, 0.1), var(--box-shadow);
+}
+
+.editorial-result-card.status-taken {
+  border: 1px solid var(--danger-border);
+}
+
+.editorial-result-card.status-taken:hover {
+  border-color: var(--danger-fg);
+  box-shadow: 0 0 20px rgba(255, 60, 80, 0.08), var(--box-shadow);
 }
 
 .editorial-card-header {

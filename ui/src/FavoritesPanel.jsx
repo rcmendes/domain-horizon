@@ -256,7 +256,7 @@ export default function FavoritesPanel({
               const isAvailable = row.status === 'available';
 
               return (
-                <li key={row.domain} className="glass-obsidian editorial-result-card">
+                <li key={row.domain} className={`glass-obsidian editorial-result-card status-${row.status}`}>
                   {/* Card Header */}
                   <div className="editorial-card-header">
                     <div className="editorial-domain-wrap">
