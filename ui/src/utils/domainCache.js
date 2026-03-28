@@ -13,11 +13,14 @@ export const saveToCache = (domain, data) => {
     const cache = raw ? JSON.parse(raw) : {};
 
     let expiresAt = null;
-    if (data.expirationDate) {
+    if (data.expirationDate && data.expirationDate !== 'Unknown') {
       const d = new Date(data.expirationDate);
-      d.setDate(d.getDate() - 1);
-      expiresAt = d.toISOString();
-    } else {
+      if (!isNaN(d.getTime())) {
+        d.setDate(d.getDate() - 1);
+        expiresAt = d.toISOString();
+      }
+    }
+    if (!expiresAt) {
       const d = new Date();
       d.setDate(d.getDate() + 30); // Default 30 days
       expiresAt = d.toISOString();
