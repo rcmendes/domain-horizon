@@ -687,13 +687,13 @@ header {
 
 /* ── Status-specific Highlight Borders ── */
 .editorial-result-card.status-available {
-  border: 4px solid var(--success-border);
+  border: 2px solid var(--success-fg);
   box-shadow: 0 0 25px rgba(0, 227, 253, 0.08), var(--box-shadow);
 }
 
 .editorial-result-card.status-available:hover {
-  border-color: var(--success-fg);
-  box-shadow: 0 0 35px rgba(0, 227, 253, 0.15), var(--box-shadow);
+  border: 4px solid var(--success-fg);
+  box-shadow: 0 0 45px rgba(0, 227, 253, 0.4), var(--box-shadow);
 }
 
 .editorial-result-card.status-expiring-soon {
@@ -1585,6 +1585,26 @@ textarea#gen-prompt {
   width: 100%;
 }
 
+.prompt-textarea-wrapper textarea::-webkit-scrollbar {
+  width: 8px;
+}
+
+.prompt-textarea-wrapper textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.prompt-textarea-wrapper textarea::-webkit-scrollbar-thumb {
+  background: rgba(182, 160, 255, 0.35);
+  border-radius: 999px;
+  border: 2px solid transparent; /* Gives it a bit of padding */
+  background-clip: content-box;
+}
+
+.prompt-textarea-wrapper textarea::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+  background-clip: content-box;
+}
+
 .prompt-footer {
   display: flex;
   justify-content: space-between;
@@ -2213,28 +2233,31 @@ textarea#gen-prompt {
 
 .tld-pill--available {
   border-color: var(--success-border);
-  background: color-mix(in oklab, var(--success-fg) 6%, var(--tree-bg));
+  background: color-mix(in oklab, var(--success-fg) 10%, var(--tree-bg));
+  color: var(--text-main);
 }
 
 .tld-pill--available .tld-pill-status {
   color: var(--success-fg);
 }
 
-.tld-pill-status {
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  opacity: 0.8;
-}
+/* Handled by consolidated .tld-pill-status below */
 
 .tld-pill--selected.tld-pill--taken {
-  background: color-mix(in oklab, var(--danger-fg) 14%, var(--tree-bg));
+  background: color-mix(in oklab, var(--danger-fg) 25%, var(--tree-bg));
+  color: var(--text-main);
 }
 
 /* Status: Taken */
 .tld-pill--taken {
-  border-color: color-mix(in oklab, var(--danger-fg) 60%, transparent);
-  background: color-mix(in oklab, var(--danger-fg) 7%, var(--tree-bg));
+  border-color: color-mix(in oklab, var(--danger-fg) 50%, transparent);
+  background: color-mix(in oklab, var(--danger-fg) 10%, var(--tree-bg));
+  color: var(--text-main);
+}
+
+.tld-pill--taken .tld-pill-status {
+  color: var(--danger-fg);
+  opacity: 1;
 }
 
 /* Status: Checking */
@@ -2266,7 +2289,9 @@ textarea#gen-prompt {
 
 .tld-pill-status {
   font-size: 0.7rem;
-  font-weight: 600;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   opacity: 0.85;
   padding-left: 0.1rem;
 }
