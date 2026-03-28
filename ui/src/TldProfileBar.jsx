@@ -49,15 +49,21 @@ export default function TldProfileBar({
         </FieldInfo>
         <div className="tld-chips" role="group" aria-label="Select target TLDs">
           {PREDEFINED_TLDS.map((tld) => (
-            <button
+            <div
               key={tld}
-              type="button"
-              className={`tld-chip ${selectedTLDs.has(tld) ? 'selected' : ''}`}
-              onClick={() => toggleTLD(tld)}
-              disabled={disabled}
+              className={`tld-chip fixed ${selectedTLDs.has(tld) ? 'selected' : ''}`}
             >
-              {tld}
-            </button>
+              <button
+                type="button"
+                className="tld-chip-toggle-area"
+                onClick={() => toggleTLD(tld)}
+                disabled={disabled}
+                aria-pressed={selectedTLDs.has(tld)}
+                title={selectedTLDs.has(tld) ? 'Deselect TLD' : 'Select TLD'}
+              >
+                {tld}
+              </button>
+            </div>
           ))}
           {Array.from(customTLDs)
             .sort()

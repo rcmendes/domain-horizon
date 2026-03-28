@@ -2186,17 +2186,29 @@ button.tld-chip.selected {
   padding: 0;
   width: 2.125rem;
   justify-content: center;
+  align-items: center;
   border-style: dashed;
-  color: var(--secondary);
-  border-color: color-mix(in oklab, var(--secondary) 40%, var(--glass-border));
+  color: var(--success-fg);
+  border-color: color-mix(in oklab, var(--success-fg) 40%, var(--glass-border));
   background: transparent;
+  cursor: pointer;
 }
 
-.tld-chip.add-btn:hover {
-  background: color-mix(in oklab, var(--secondary) 10%, transparent);
-  border-color: var(--secondary);
+.tld-chip.add-btn:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--success-fg) 10%, transparent);
+  border-color: var(--success-fg);
   border-style: solid;
   transform: scale(1.05);
+  box-shadow: 0 0 15px color-mix(in oklab, var(--success-fg) 40%, transparent);
+}
+
+.tld-chip.add-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.tld-chip.add-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .tld-input-wrapper {
