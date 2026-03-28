@@ -239,7 +239,7 @@ function AppInner() {
                 <span className="brand-nomo">Nomo</span>
                 <span className="brand-lens">Lens</span>
               </div>
-              <div className="brand-tagline">Your ideas deserve the perfect name. Let's find it together.</div>
+              <div className="brand-tagline">YOUR IDEAS DESERVE THE PERFECT NAME. LET'S FIND IT TOGETHER.</div>
             </div>
           </header>
 

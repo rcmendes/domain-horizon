@@ -286,8 +286,14 @@ header {
   width: 120px;
   height: 120px;
   object-fit: contain;
-  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1));
+  filter: drop-shadow(0 10px 25px rgba(0, 227, 253, 0.25)) drop-shadow(0 0 10px rgba(182, 160, 255, 0.15));
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
+.brand-logo-img:hover {
+  transform: scale(1.05) rotate(-2deg);
+}
+
 
 .brand-text-content {
   display: flex;
@@ -316,36 +322,58 @@ header {
 
 .brand-nomo {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 300; /* Extra thin for elegance */
   color: transparent;
-  -webkit-text-stroke: 1.5px var(--text-muted);
-  letter-spacing: -2px;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.9); /* Sharper, reliable stroke */
+  letter-spacing: 1px; /* Slight breathing room so it doesn't look cut off */
   text-transform: uppercase;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.1); /* Very subtle bloom */
 }
 
 .brand-lens {
   font-family: var(--font-display);
   font-weight: 800;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  background: linear-gradient(90deg, #b6a0ff 0%, #00e3fd 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 20px rgba(182, 160, 255, 0.4));
-  margin-left: 4px;
-  letter-spacing: -3px;
+  filter: drop-shadow(0 0 15px rgba(0, 227, 253, 0.4));
+  margin-left: 6px;
+  letter-spacing: -1px;
   text-transform: uppercase;
+  position: relative;
+  /* Fixes the "S" being cut off by the background-clip bounding box */
+  padding-right: 0.15em;
+  margin-right: -0.15em;
 }
 
 .brand-tagline {
   font-family: var(--font-family);
-  font-size: 1.1rem;
-  font-weight: 500;
-  letter-spacing: 0.05em;
+  font-size: 0.95rem; /* Slightly smaller for better hierarchy */
+  font-weight: 600;
+  letter-spacing: 0.25em; /* Increased letter-spacing for premium feel */
   color: var(--text-muted);
-  margin-top: 4px;
+  margin-top: 8px;
   text-transform: uppercase;
-  opacity: 0.8;
+  opacity: 0.9;
+  text-align: left;
+  background: linear-gradient(90deg, var(--text-muted) 0%, #ffffff 50%, var(--text-muted) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  transition: opacity 0.3s ease;
 }
+
+[data-theme="light"] .brand-nomo {
+  -webkit-text-stroke-color: #111118;
+}
+
+[data-theme="light"] .brand-tagline {
+  background: none;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  color: var(--text-muted);
+}
+
 
 /* Glassmorphism Common Utility */
 .glass {
